@@ -2,6 +2,7 @@ import os
 import re
 import string
 
+import numpy as np
 import pandas as pd
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
@@ -52,22 +53,46 @@ def bag_of_words(tokenized_tweet, vocab, binary=True):
         return [tokenized_tweet.count(v) if v in tokenized_tweet else 0 for v in vocab]
 
 
-def preprocess(df):
-    df['tokens'] = df.tweet.apply(tokenize)
-    df['stemmed_tokens'] = df.tweet.apply(lambda x: tokenize(x, True))
-    vocab = vocabulary(df.tokens)
-    stemmed_vocab = vocabulary(df.stemmed_tokens)
-    # Binary
-    bow_bin = df.tokens.apply(lambda x: bag_of_words(x, vocab))
-    bow_stemmed_bin = df.tokens.apply(lambda x: bag_of_words(x, vocab))
-    # Frequency
-    bow_freq = df.tokens.apply(lambda x: bag_of_words(x, vocab, False))
-    bow_stemmed_freq = df.tokens.apply(lambda x: bag_of_words(x, vocab, False))
-    print(vocab)
-    return df
+def preprocess(df, stem=False, binary=True, vocab=None):
+    if stem:
+        tokens = df.tweet.apply(lambda x: tokenize(x, True))
+    else:
+        tokens = df.tweet.apply(tokenize)
+    if vocab is None:
+        vocab = vocabulary(tokens)
+    if binary:
+        output = tokens.apply(lambda x: bag_of_words(x, vocab))
+    else:
+        output = tokens.apply(lambda x: bag_of_words(x, vocab, False))
+    return np.array(output.values.tolist()), vocab
+
+
+def train(features, labels):
+    if isinstance(labels, pd.Series):
+        labels = labels.values
+    prior = {c: np.log(labels.tolist().count(c) / len(labels)) for c in set(labels)}
+    likelihood = {}
+    # TODO: Add Laplace correction
+    for c in set(labels.tolist()):
+        count_wi = np.sum(features[labels == c], axis=0)
+        count_all = np.sum(count_wi)
+        likelihood[c] = np.log((count_wi + 1) / (count_all + len(count_wi)))
+    return prior, likelihood
+
+
+def predict(features):
+    return None
+
+
+def main():
+    stem, binary = False, True
+    df_train = read_files('./data/tweet/train')
+    x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
+    model = train(x_train, df_train.label)
+    df_test = read_files('./data/tweet/test')
+    x_test, _ = preprocess(df_test, stem=stem, binary=binary, vocab=vocab)
+    y_pred = predict(x_test)
 
 
 if __name__ == '__main__':
-    df_train = read_files('./data/tweet/train')
-    df_train = preprocess(df_train)
-    print(df_train.columns)
+    main()

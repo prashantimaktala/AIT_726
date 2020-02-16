@@ -5,12 +5,18 @@
 In this assignment, you will build a naïve Bayes and a logistic regression classifier for sentiment classification. We are defining sentiment classification as two classes: positive and negative.  Our data set consists of airline reviews.  The zip directory for the data contains training and test datasets, where each file contains one airline review tweet. You will build the model using training data and evaluate with test data. Each of training data and test data contains 4182 reviews. 
 
 1.	Build your naive Bayes classifier
+
 a.	Create your Vocabulary: Read the complete training data word by word and create the vocabulary V for the corpus.  You must not include the test set in this process.  Remove any markup tags, e.g., HTML tags, from the data.  Lower case capitalized words (i.e., starts with a capital letter) but not all capital words (e.g., USA). Keep all stop words. Create 2 versions of V: with stemming and without stemming.  You can use appropriate tools in nltk  to stem. Tokenize at white space and also at each punctuation. In other words, “child’s” consists of two tokens “child and ‘s”, “home.” consists of two tokens “home” and “.”. Consider emoticons in this process. You can use an emoticon tokenizer, if you so choose.  If yes, specify which one. 
+
 b.	Extract Features: Convert documents to vectors using Bag of Words (BoW) representation. Do this in two ways: keeping frequency count where each word is represented by its count in each document, keeping binary representation that only keeps track of presence (or not) of a word in a document.
+
 c.	Training: calculate the prior for each class & the likelihood for each word|class.
 Note that if you want to experiment with different stemmers or other aspects of the input features, you must do so on the training set, through cross-validation. You must not do such preliminary evaluations on test data.  Once you have finalized your system, you are ready to evaluate on test data.
+
 d.	Evaluation: Compute the most likely class for each document in the test set using each of the combinations of stemming + frequency count, stemming + binary, no-stemming + frequency count, no-stemming + binary.
+
 e.	Ignore any words that appear in the test set but not the training set.
+
 f.	Save your results in a.txt or .log file.
 
 2.	Build your logistic regression classifier. 

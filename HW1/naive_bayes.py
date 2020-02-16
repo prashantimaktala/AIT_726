@@ -84,14 +84,21 @@ def predict(features):
     return None
 
 
+def evaluate(y_true, y_pred):
+    pass
+
+
 def main():
     stem, binary = False, True
     df_train = read_files('./data/tweet/train')
     x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
-    model = train(x_train, df_train.label)
+    y_train = df_train.label
+    model = train(x_train, y_train)
     df_test = read_files('./data/tweet/test')
     x_test, _ = preprocess(df_test, stem=stem, binary=binary, vocab=vocab)
     y_pred = predict(x_test)
+    y_test = df_test.label
+    evaluate(y_test, y_pred)
 
 
 if __name__ == '__main__':

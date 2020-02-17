@@ -1,3 +1,10 @@
+"""
+AIT726 HW 1 Due 2/20/2020
+Sentiment classification using Naive Bayes and Logistic Regression on a dataset of 4181 training and 4182 testing tweets.
+Authors: Yasas, Prashanti , Ashwini
+Command to run the file: naive_bayes.py
+"""
+
 import os
 import re
 import string
@@ -11,6 +18,9 @@ stemmer = PorterStemmer()
 
 emoticons_pattern = r'(:\)|:-\)|:\(|:-\(|;\);-\)|:-O|8-|:P|:D|:\||:S|:\$|:@|8o\||\+o\(|\(H\)|\(C\)|\(\?\))'
 
+""" read_files - helps to navigate through the files in the folder structure, read the files and convert them to 
+dataframe which consists of tweet and labels. """
+
 
 def read_files(path):
     corpus = []
@@ -22,6 +32,11 @@ def read_files(path):
                 corpus.append((tweet, 1 if label == 'positive' else 0))
     df = pd.DataFrame.from_records(corpus, columns=['tweet', 'label'])
     return df
+
+
+"""tokenize function takes care of handling removal of html tags, conversion of capitalized words to lowercase except 
+for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize 
+as well as tokens with stemming using PotterStemmer. """
 
 
 def tokenize(x, stem=False):
@@ -39,6 +54,9 @@ def tokenize(x, stem=False):
     return tokens
 
 
+""" vocabulary - we have created word by word vocabulary for the complete training data for all the provided tokens"""
+
+
 def vocabulary(tokenized_tweets):
     vocab = set()
     for tokens in tokenized_tweets:
@@ -46,11 +64,17 @@ def vocabulary(tokenized_tweets):
     return list(vocab)
 
 
+""" bag_of_words - we have created both binary and frequency count representation of BOW"""
+
+
 def bag_of_words(tokenized_tweet, vocab, binary=True):
     if binary:
         return [1 if v in tokenized_tweet else 0 for v in vocab]
     else:
         return [tokenized_tweet.count(v) if v in tokenized_tweet else 0 for v in vocab]
+
+
+""" preprocess - calls appropriate tokenize to generate training and test data with required vocabulary """
 
 
 def preprocess(df, stem=False, binary=True, vocab=None):
@@ -67,18 +91,24 @@ def preprocess(df, stem=False, binary=True, vocab=None):
     return np.array(output.values.tolist()), vocab
 
 
+""" train - calculates the class prior and likelihoods for use in Naive Bayes predictions """
+
+
 def train(features, labels):
     if isinstance(labels, pd.Series):
         labels = labels.values
     prior = {c: np.log(labels.tolist().count(c) / len(labels)) for c in set(labels)}
     likelihood = {}
-    # TODO: Add Laplace correction
+    # Add Laplace correction
     categories = list(set(labels.tolist()))
     for c in categories:
         count_wi = np.sum(features[labels == c], axis=0)
         count_all = np.sum(count_wi)
         likelihood[c] = np.log((count_wi + 1) / (count_all + len(count_wi)))
     return dict(prior=prior, likelihood=likelihood, categories=categories)
+
+
+""" predict - predicts the class of all of the test documents for all of the feature vectors using Naive Bayes """
 
 
 def predict(model, features):
@@ -92,6 +122,9 @@ def predict(model, features):
     y_argmax = np.argmax(y_log_prob, axis=1)
     y_pred = np.array([model['categories'][x] for x in y_argmax])
     return y_pred
+
+
+""" evaluate - calculates and prints accuracy and confusion matrix for predictions """
 
 
 def evaluate(y_true, y_pred, true_label=1):
@@ -108,6 +141,9 @@ def evaluate(y_true, y_pred, true_label=1):
     print()
 
 
+""" run - Execution of appropriate functions as per the required call """
+
+
 def run(stem=False, binary=True):
     df_train = read_files('./data/tweet/train')
     x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
@@ -118,6 +154,9 @@ def run(stem=False, binary=True):
     y_pred = predict(model, x_test)
     y_test = df_test.label.values
     evaluate(y_test, y_pred)
+
+
+""" main - runs all the modules via run function"""
 
 
 def main():

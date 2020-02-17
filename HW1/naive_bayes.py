@@ -73,32 +73,65 @@ def train(features, labels):
     prior = {c: np.log(labels.tolist().count(c) / len(labels)) for c in set(labels)}
     likelihood = {}
     # TODO: Add Laplace correction
-    for c in set(labels.tolist()):
+    categories = list(set(labels.tolist()))
+    for c in categories:
         count_wi = np.sum(features[labels == c], axis=0)
         count_all = np.sum(count_wi)
         likelihood[c] = np.log((count_wi + 1) / (count_all + len(count_wi)))
-    return prior, likelihood
+    return dict(prior=prior, likelihood=likelihood, categories=categories)
 
 
-def predict(features):
-    return None
+def predict(model, features):
+    y_log_prob = None
+    for c in model['categories']:
+        y_log_prob_c = model['prior'][c] + np.sum(features * model['likelihood'][c], axis=1)
+        if y_log_prob is None:
+            y_log_prob = y_log_prob_c.reshape((-1, 1))
+        else:
+            y_log_prob = np.append(y_log_prob, y_log_prob_c.reshape((-1, 1)), 1)
+    y_argmax = np.argmax(y_log_prob, axis=1)
+    y_pred = np.array([model['categories'][x] for x in y_argmax])
+    return y_pred
 
 
-def evaluate(y_true, y_pred):
-    pass
+def evaluate(y_true, y_pred, true_label=1):
+    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
+    false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
+    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
+    false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
+    print('Confusion Matrix: ')
+    print('\t\tTrue\tFalse')
+    print('True\t%d\t\t%d' % (true_positives, false_positives))
+    print('False\t%d\t\t%d' % (false_negatives, true_negatives))
+    print()
+    print('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
+    print()
 
 
-def main():
-    stem, binary = False, True
+def run(stem=False, binary=True):
     df_train = read_files('./data/tweet/train')
     x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
-    y_train = df_train.label
+    y_train = df_train.label.values
     model = train(x_train, y_train)
     df_test = read_files('./data/tweet/test')
     x_test, _ = preprocess(df_test, stem=stem, binary=binary, vocab=vocab)
-    y_pred = predict(x_test)
-    y_test = df_test.label
+    y_pred = predict(model, x_test)
+    y_test = df_test.label.values
     evaluate(y_test, y_pred)
+
+
+def main():
+    print('Running Stemming With Frequency BoW Features')
+    run(stem=True, binary=False)
+
+    print('Running Stemming With Binary BoW Features')
+    run(stem=True, binary=True)
+
+    print('Running No Stemming With Frequency BoW Features')
+    run(stem=False, binary=False)
+
+    print('Running No Stemming With Binary BoW Features')
+    run(stem=False, binary=True)
 
 
 if __name__ == '__main__':

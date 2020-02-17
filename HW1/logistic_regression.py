@@ -118,6 +118,7 @@ def train(features, labels, n_iter=100, batch_size=10, eta=0.05):
             x_batch, y_batch = x_shuffled[batch:batch + batch_size], y_shuffled[batch:batch + batch_size]
             m_batch = y_batch.shape[0]
             z = pred_proba(model, x_batch)
+            # TODO: add regularization
             model['w'] -= eta * np.dot(np.transpose(x_batch), (z - y_batch).reshape(-1)).reshape(-1) / m_batch
             model['b'] -= eta * np.sum(z - y_batch) / m_batch
     return model

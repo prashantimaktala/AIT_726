@@ -94,16 +94,33 @@ def predict(model, features, threshold=0.5):
     return pred_proba(model, features) > threshold
 
 
-# TODO: Implement
-def cross_entropy_loss():
-    pass
+# # TODO: Implement
+# def cross_entropy_loss(y, y_hat):
+#     return - (y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
+
+
+# # TODO: Implement
+# def cost(model, features, labels):
+#     y_pred = pred_proba(model, features)
+#     m = labels.shape[0]
+#     result = np.sum([cross_entropy_loss(y, y_hat) for y, y_hat in zip(labels, y_pred)]) / m
+#     return result
 
 
 # TODO: Implement
-def train(features, labels):
+def train(features, labels, n_iter=100, batch_size=10, eta=0.05):
     model = {'w': np.zeros(features.shape[1]), 'b': 0.0}
-    z = pred_proba(model, features)
-    return None
+    m = labels.shape[0]
+    for _ in range(n_iter):
+        idxes = np.random.permutation(m)
+        x_shuffled, y_shuffled = features[idxes], labels[idxes]
+        for batch in range(0, m, batch_size):
+            x_batch, y_batch = x_shuffled[batch:batch + batch_size], y_shuffled[batch:batch + batch_size]
+            m_batch = y_batch.shape[0]
+            z = pred_proba(model, x_batch)
+            model['w'] -= eta * np.dot(np.transpose(x_batch), (z - y_batch).reshape(-1)).reshape(-1) / m_batch
+            model['b'] -= eta * np.sum(z - y_batch) / m_batch
+    return model
 
 
 def evaluate(y_true, y_pred, true_label=1):

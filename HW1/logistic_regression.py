@@ -67,31 +67,32 @@ def preprocess(df, stem=False, binary=True, vocab=None):
     return np.array(output.values.tolist()), vocab
 
 
+# TODO: Check
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+# TODO: Check
+def pred_proba(model, features):
+    w, b = model['w'], model['b']
+    return np.array([sigmoid(np.sum(w * x) + b) for x in features])
+
+
+# TODO: Implement
+def predict(model, features, threshold=0.5):
+    return pred_proba(model, features) > threshold
+
+
+# TODO: Implement
+def cross_entropy_loss():
+    pass
+
+
+# TODO: Implement
 def train(features, labels):
-    if isinstance(labels, pd.Series):
-        labels = labels.values
-    prior = {c: np.log(labels.tolist().count(c) / len(labels)) for c in set(labels)}
-    likelihood = {}
-    # TODO: Add Laplace correction
-    categories = list(set(labels.tolist()))
-    for c in categories:
-        count_wi = np.sum(features[labels == c], axis=0)
-        count_all = np.sum(count_wi)
-        likelihood[c] = np.log((count_wi + 1) / (count_all + len(count_wi)))
-    return dict(prior=prior, likelihood=likelihood, categories=categories)
-
-
-def predict(model, features):
-    y_log_prob = None
-    for c in model['categories']:
-        y_log_prob_c = model['prior'][c] + np.sum(features * model['likelihood'][c], axis=1)
-        if y_log_prob is None:
-            y_log_prob = y_log_prob_c.reshape((-1, 1))
-        else:
-            y_log_prob = np.append(y_log_prob, y_log_prob_c.reshape((-1, 1)), 1)
-    y_argmax = np.argmax(y_log_prob, axis=1)
-    y_pred = np.array([model['categories'][x] for x in y_argmax])
-    return y_pred
+    model = {'w': np.zeros(features.shape[1]), 'b': 0.0}
+    z = pred_proba(model, features)
+    return None
 
 
 def evaluate(y_true, y_pred, true_label=1):
@@ -108,6 +109,7 @@ def evaluate(y_true, y_pred, true_label=1):
     print()
 
 
+# noinspection DuplicatedCode
 def run(stem=False, binary=True):
     df_train = read_files('./data/tweet/train')
     x_train, vocab = preprocess(df_train, stem=stem, binary=binary)

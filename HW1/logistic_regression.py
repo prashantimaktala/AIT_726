@@ -69,13 +69,24 @@ def preprocess(df, stem=False, binary=True, vocab=None):
 
 # TODO: Check
 def sigmoid(x):
+    """ Sigmoid Function
+
+    :param x: var
+    :return: Sigmoid value
+    """
     return 1 / (1 + np.exp(-x))
 
 
 # TODO: Check
 def pred_proba(model, features):
+    """ Predict the (softmax) probability of each document being positive.
+
+    :param model: a trained model
+    :param features: feature matrix of shape D x V.
+    :return: Predicted +ve probability of documents.
+    """
     w, b = model['w'], model['b']
-    return np.array([sigmoid(np.sum(w * x) + b) for x in features])
+    return np.array([sigmoid(np.dot(w, x) + b) for x in features])
 
 
 # TODO: Implement

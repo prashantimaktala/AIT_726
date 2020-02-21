@@ -1,0 +1,352 @@
+INFO:root:Evaluating : None
+INFO:root:Running Stemming With Frequency BoW Features
+INFO:root:epoch = 1 & cost = 0.35554760240925465
+INFO:root:epoch = 2 & cost = 0.31053568840894774
+INFO:root:epoch = 3 & cost = 0.287644128946854
+INFO:root:epoch = 4 & cost = 0.2705049806604493
+INFO:root:epoch = 5 & cost = 0.25820132480897584
+INFO:root:epoch = 6 & cost = 0.24861817730271424
+INFO:root:epoch = 7 & cost = 0.24023914547286632
+INFO:root:epoch = 8 & cost = 0.23422209497032362
+INFO:root:epoch = 9 & cost = 0.2272210841289265
+INFO:root:epoch = 10 & cost = 0.22211410399906586
+INFO:root:epoch = 11 & cost = 0.21652294336050568
+INFO:root:epoch = 12 & cost = 0.21335456718605134
+INFO:root:epoch = 13 & cost = 0.20801648214339893
+INFO:root:epoch = 14 & cost = 0.20550237980692926
+INFO:root:epoch = 15 & cost = 0.20220823234822383
+INFO:root:epoch = 16 & cost = 0.19669655811632628
+INFO:root:epoch = 17 & cost = 0.19393180182042993
+INFO:root:epoch = 18 & cost = 0.19169136066610007
+INFO:root:epoch = 19 & cost = 0.18816835771536672
+INFO:root:epoch = 20 & cost = 0.19243726857911994
+INFO:root:AIT_726 Logistic Regression Output
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:Evaluating without Regularization
+INFO:root:Running Stemming With Frequency BoW Features
+INFO:root:epoch = 1 & cost = 0.35715750610919417
+INFO:root:epoch = 2 & cost = 0.31299887962935824
+INFO:root:epoch = 3 & cost = 0.2880921879790231
+INFO:root:epoch = 4 & cost = 0.2702488591577928
+INFO:root:epoch = 5 & cost = 0.2580208511137211
+INFO:root:epoch = 6 & cost = 0.24835710665090216
+INFO:root:epoch = 7 & cost = 0.2405405319580692
+INFO:root:epoch = 8 & cost = 0.23375876747240645
+INFO:root:epoch = 9 & cost = 0.22768247630045418
+INFO:root:epoch = 10 & cost = 0.2216005648573508
+INFO:root:epoch = 11 & cost = 0.21681590930534933
+INFO:root:epoch = 12 & cost = 0.2128569034795237
+INFO:root:epoch = 13 & cost = 0.20762257092356737
+INFO:root:epoch = 14 & cost = 0.20381258526612903
+INFO:root:epoch = 15 & cost = 0.20053280365523873
+INFO:root:epoch = 16 & cost = 0.19987675243378997
+INFO:root:epoch = 17 & cost = 0.1976211647173226
+INFO:root:epoch = 18 & cost = 0.1921690763498655
+INFO:root:epoch = 19 & cost = 0.1887751485334997
+INFO:root:epoch = 20 & cost = 0.18532395486373757
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	918		147
+INFO:root:False	264		2853
+INFO:root:Accuracy = 90.17
+INFO:root:
+INFO:root:Running Stemming With Binary BoW Features
+INFO:root:epoch = 1 & cost = 0.36085261664136487
+INFO:root:epoch = 2 & cost = 0.3138430971652967
+INFO:root:epoch = 3 & cost = 0.28838356478480287
+INFO:root:epoch = 4 & cost = 0.2727010845529986
+INFO:root:epoch = 5 & cost = 0.2610828771511867
+INFO:root:epoch = 6 & cost = 0.2521104194769838
+INFO:root:epoch = 7 & cost = 0.24371145160825988
+INFO:root:epoch = 8 & cost = 0.23690355461631427
+INFO:root:epoch = 9 & cost = 0.23241737926249081
+INFO:root:epoch = 10 & cost = 0.2258181186971018
+INFO:root:epoch = 11 & cost = 0.22116233496363608
+INFO:root:epoch = 12 & cost = 0.21674871592947886
+INFO:root:epoch = 13 & cost = 0.21272163832406504
+INFO:root:epoch = 14 & cost = 0.20908403771120124
+INFO:root:epoch = 15 & cost = 0.20722052108494846
+INFO:root:epoch = 16 & cost = 0.2022531315707188
+INFO:root:epoch = 17 & cost = 0.19924029564867327
+INFO:root:epoch = 18 & cost = 0.19629882915784364
+INFO:root:epoch = 19 & cost = 0.1935750420797112
+INFO:root:epoch = 20 & cost = 0.1910951724013121
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	904		122
+INFO:root:False	278		2878
+INFO:root:Accuracy = 90.44
+INFO:root:
+INFO:root:Running No Stemming With Frequency BoW Features
+INFO:root:epoch = 1 & cost = 0.3774917393143315
+INFO:root:epoch = 2 & cost = 0.3310480604090497
+INFO:root:epoch = 3 & cost = 0.30432377632140406
+INFO:root:epoch = 4 & cost = 0.2881691700949504
+INFO:root:epoch = 5 & cost = 0.2731508150694472
+INFO:root:epoch = 6 & cost = 0.2627869752434023
+INFO:root:epoch = 7 & cost = 0.2531609125614185
+INFO:root:epoch = 8 & cost = 0.24615423287274443
+INFO:root:epoch = 9 & cost = 0.23840105303495726
+INFO:root:epoch = 10 & cost = 0.23382106084637685
+INFO:root:epoch = 11 & cost = 0.22674253099510341
+INFO:root:epoch = 12 & cost = 0.22158620084563757
+INFO:root:epoch = 13 & cost = 0.21718550651893562
+INFO:root:epoch = 14 & cost = 0.21297407836619575
+INFO:root:epoch = 15 & cost = 0.21259161357654474
+INFO:root:epoch = 16 & cost = 0.2056973333544994
+INFO:root:epoch = 17 & cost = 0.20133376056166294
+INFO:root:epoch = 18 & cost = 0.19814616859562761
+INFO:root:epoch = 19 & cost = 0.19491402133852476
+INFO:root:epoch = 20 & cost = 0.1922316066430849
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	884		129
+INFO:root:False	298		2871
+INFO:root:Accuracy = 89.79
+INFO:root:
+INFO:root:Running Stemming With TFIDF Features
+INFO:root:epoch = 1 & cost = 0.15533558578324638
+INFO:root:epoch = 2 & cost = 0.10928043696854992
+INFO:root:epoch = 3 & cost = 0.08656116530475935
+INFO:root:epoch = 4 & cost = 0.0729612873530959
+INFO:root:epoch = 5 & cost = 0.06263499122051612
+INFO:root:epoch = 6 & cost = 0.05542376035569407
+INFO:root:epoch = 7 & cost = 0.0498769538534122
+INFO:root:epoch = 8 & cost = 0.04539280074544101
+INFO:root:epoch = 9 & cost = 0.04162220004465046
+INFO:root:epoch = 10 & cost = 0.03862442167060515
+INFO:root:epoch = 11 & cost = 0.03598567434925269
+INFO:root:epoch = 12 & cost = 0.03375790080615477
+INFO:root:epoch = 13 & cost = 0.03182554864142909
+INFO:root:epoch = 14 & cost = 0.030234024085728027
+INFO:root:epoch = 15 & cost = 0.028634606291125252
+INFO:root:epoch = 16 & cost = 0.02732343758059069
+INFO:root:epoch = 17 & cost = 0.026092935180695605
+INFO:root:epoch = 18 & cost = 0.025023445631385248
+INFO:root:epoch = 19 & cost = 0.024023108500236437
+INFO:root:epoch = 20 & cost = 0.02312413308953312
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	939		153
+INFO:root:False	243		2847
+INFO:root:Accuracy = 90.53
+INFO:root:
+INFO:root:Running No Stemming With Binary BoW Features
+INFO:root:epoch = 1 & cost = 0.38492417821869657
+INFO:root:epoch = 2 & cost = 0.33338291091232075
+INFO:root:epoch = 3 & cost = 0.3064117330688899
+INFO:root:epoch = 4 & cost = 0.28985723185053036
+INFO:root:epoch = 5 & cost = 0.27578603502104676
+INFO:root:epoch = 6 & cost = 0.26530999949560896
+INFO:root:epoch = 7 & cost = 0.2565658993875292
+INFO:root:epoch = 8 & cost = 0.24963085284480552
+INFO:root:epoch = 9 & cost = 0.24234908033226596
+INFO:root:epoch = 10 & cost = 0.23669982077052915
+INFO:root:epoch = 11 & cost = 0.23124633890849106
+INFO:root:epoch = 12 & cost = 0.22650555840898481
+INFO:root:epoch = 13 & cost = 0.2218236579699292
+INFO:root:epoch = 14 & cost = 0.21768030804681077
+INFO:root:epoch = 15 & cost = 0.21477374960134982
+INFO:root:epoch = 16 & cost = 0.2103226898167557
+INFO:root:epoch = 17 & cost = 0.20695147028232241
+INFO:root:epoch = 18 & cost = 0.20442991800654564
+INFO:root:epoch = 19 & cost = 0.20219527993232753
+INFO:root:epoch = 20 & cost = 0.19790686050384232
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	920		141
+INFO:root:False	262		2859
+INFO:root:Accuracy = 90.36
+INFO:root:
+INFO:root:Running No Stemming With TFIDF Features
+INFO:root:epoch = 1 & cost = 0.15389059838431404
+INFO:root:epoch = 2 & cost = 0.10658195579527326
+INFO:root:epoch = 3 & cost = 0.08011552186642931
+INFO:root:epoch = 4 & cost = 0.06585847619762975
+INFO:root:epoch = 5 & cost = 0.056209850668579656
+INFO:root:epoch = 6 & cost = 0.049259503675484324
+INFO:root:epoch = 7 & cost = 0.04391399604819582
+INFO:root:epoch = 8 & cost = 0.039713564852240306
+INFO:root:epoch = 9 & cost = 0.036309925348543305
+INFO:root:epoch = 10 & cost = 0.03392317871962547
+INFO:root:epoch = 11 & cost = 0.03131879916950257
+INFO:root:epoch = 12 & cost = 0.029156635186966078
+INFO:root:epoch = 13 & cost = 0.02751497459749144
+INFO:root:epoch = 14 & cost = 0.02580568165605641
+INFO:root:epoch = 15 & cost = 0.024411178692005958
+INFO:root:epoch = 16 & cost = 0.023184931004348392
+INFO:root:epoch = 17 & cost = 0.02209682631330323
+INFO:root:epoch = 18 & cost = 0.021123376482232867
+INFO:root:epoch = 19 & cost = 0.020256586540418065
+INFO:root:epoch = 20 & cost = 0.0195421595476312
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	949		149
+INFO:root:False	233		2851
+INFO:root:Accuracy = 90.87
+INFO:root:
+INFO:root:
+INFO:root:Evaluating with L2 Regularization
+INFO:root:Running Stemming With Frequency BoW Features
+INFO:root:epoch = 1 & cost = 0.35819162159241913
+INFO:root:epoch = 2 & cost = 0.3108982214407018
+INFO:root:epoch = 3 & cost = 0.2866449312652701
+INFO:root:epoch = 4 & cost = 0.2701906315797106
+INFO:root:epoch = 5 & cost = 0.2581065138222687
+INFO:root:epoch = 6 & cost = 0.24878808785854054
+INFO:root:epoch = 7 & cost = 0.24021723360862554
+INFO:root:epoch = 8 & cost = 0.2330842279827233
+INFO:root:epoch = 9 & cost = 0.22687377529119154
+INFO:root:epoch = 10 & cost = 0.2211968005994431
+INFO:root:epoch = 11 & cost = 0.21711178783237228
+INFO:root:epoch = 12 & cost = 0.21197167100126416
+INFO:root:epoch = 13 & cost = 0.21064484834526848
+INFO:root:epoch = 14 & cost = 0.20706746826060704
+INFO:root:epoch = 15 & cost = 0.2004128621107879
+INFO:root:epoch = 16 & cost = 0.19674821618385852
+INFO:root:epoch = 17 & cost = 0.1934784334351205
+INFO:root:epoch = 18 & cost = 0.19041874777871165
+INFO:root:epoch = 19 & cost = 0.18918663875950556
+INFO:root:epoch = 20 & cost = 0.18565036874187962
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	890		121
+INFO:root:False	292		2879
+INFO:root:Accuracy = 90.12
+INFO:root:
+INFO:root:Running Stemming With Binary BoW Features
+INFO:root:epoch = 1 & cost = 0.36426424791581
+INFO:root:epoch = 2 & cost = 0.312955140009767
+INFO:root:epoch = 3 & cost = 0.2882113551634542
+INFO:root:epoch = 4 & cost = 0.27251281695394725
+INFO:root:epoch = 5 & cost = 0.26083431117769307
+INFO:root:epoch = 6 & cost = 0.25185716633161565
+INFO:root:epoch = 7 & cost = 0.24370066647103097
+INFO:root:epoch = 8 & cost = 0.23685338485795485
+INFO:root:epoch = 9 & cost = 0.2314690903861066
+INFO:root:epoch = 10 & cost = 0.22565764859293275
+INFO:root:epoch = 11 & cost = 0.220895077206192
+INFO:root:epoch = 12 & cost = 0.21656915290987583
+INFO:root:epoch = 13 & cost = 0.21298628832452168
+INFO:root:epoch = 14 & cost = 0.20958759636013757
+INFO:root:epoch = 15 & cost = 0.2069065181546837
+INFO:root:epoch = 16 & cost = 0.20220903996017264
+INFO:root:epoch = 17 & cost = 0.19914085413827906
+INFO:root:epoch = 18 & cost = 0.19626783707543766
+INFO:root:epoch = 19 & cost = 0.19382138448529168
+INFO:root:epoch = 20 & cost = 0.19116076093784487
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	900		121
+INFO:root:False	282		2879
+INFO:root:Accuracy = 90.36
+INFO:root:
+INFO:root:Running No Stemming With Frequency BoW Features
+INFO:root:epoch = 1 & cost = 0.3765825050443316
+INFO:root:epoch = 2 & cost = 0.3302702445680407
+INFO:root:epoch = 3 & cost = 0.30610537070366256
+INFO:root:epoch = 4 & cost = 0.2865887823934301
+INFO:root:epoch = 5 & cost = 0.27323191008748127
+INFO:root:epoch = 6 & cost = 0.262243283886131
+INFO:root:epoch = 7 & cost = 0.25357303722531965
+INFO:root:epoch = 8 & cost = 0.2747826158010641
+INFO:root:epoch = 9 & cost = 0.23838567598793628
+INFO:root:epoch = 10 & cost = 0.23288398512217057
+INFO:root:epoch = 11 & cost = 0.22743796529910393
+INFO:root:epoch = 12 & cost = 0.2215362718104637
+INFO:root:epoch = 13 & cost = 0.21741927206937212
+INFO:root:epoch = 14 & cost = 0.21290559353986926
+INFO:root:epoch = 15 & cost = 0.2088380103583812
+INFO:root:epoch = 16 & cost = 0.20481662777288848
+INFO:root:epoch = 17 & cost = 0.20189035579366096
+INFO:root:epoch = 18 & cost = 0.1982278724759935
+INFO:root:epoch = 19 & cost = 0.19472355373230144
+INFO:root:epoch = 20 & cost = 0.19461177954164338
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	943		183
+INFO:root:False	239		2817
+INFO:root:Accuracy = 89.91
+INFO:root:
+INFO:root:Running Stemming With TFIDF Features
+INFO:root:epoch = 1 & cost = 0.1658167118300807
+INFO:root:epoch = 2 & cost = 0.10913689851326466
+INFO:root:epoch = 3 & cost = 0.08635038614371929
+INFO:root:epoch = 4 & cost = 0.07349757126026928
+INFO:root:epoch = 5 & cost = 0.06249239163905182
+INFO:root:epoch = 6 & cost = 0.055247935014144794
+INFO:root:epoch = 7 & cost = 0.04968438852431364
+INFO:root:epoch = 8 & cost = 0.045235967648564586
+INFO:root:epoch = 9 & cost = 0.041636412224295226
+INFO:root:epoch = 10 & cost = 0.03853459418861317
+INFO:root:epoch = 11 & cost = 0.03595071925857911
+INFO:root:epoch = 12 & cost = 0.03373155353340452
+INFO:root:epoch = 13 & cost = 0.03181058170600644
+INFO:root:epoch = 14 & cost = 0.030129583295444767
+INFO:root:epoch = 15 & cost = 0.028608808943622863
+INFO:root:epoch = 16 & cost = 0.02728331781712478
+INFO:root:epoch = 17 & cost = 0.02606467827311888
+INFO:root:epoch = 18 & cost = 0.024997632504509537
+INFO:root:epoch = 19 & cost = 0.024024998496834406
+INFO:root:epoch = 20 & cost = 0.023119945744567494
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	937		144
+INFO:root:False	245		2856
+INFO:root:Accuracy = 90.70
+INFO:root:
+INFO:root:Running No Stemming With Binary BoW Features
+INFO:root:epoch = 1 & cost = 0.39135320850353145
+INFO:root:epoch = 2 & cost = 0.33364815762399785
+INFO:root:epoch = 3 & cost = 0.31141949032391486
+INFO:root:epoch = 4 & cost = 0.28958860856475016
+INFO:root:epoch = 5 & cost = 0.2760536572391689
+INFO:root:epoch = 6 & cost = 0.2652871589005915
+INFO:root:epoch = 7 & cost = 0.2569052496374635
+INFO:root:epoch = 8 & cost = 0.24895331546312802
+INFO:root:epoch = 9 & cost = 0.24394212726035955
+INFO:root:epoch = 10 & cost = 0.23717942968914377
+INFO:root:epoch = 11 & cost = 0.23111616847211494
+INFO:root:epoch = 12 & cost = 0.2272137774313032
+INFO:root:epoch = 13 & cost = 0.22257390300787505
+INFO:root:epoch = 14 & cost = 0.21774125422746418
+INFO:root:epoch = 15 & cost = 0.21388170753984687
+INFO:root:epoch = 16 & cost = 0.21024705865452656
+INFO:root:epoch = 17 & cost = 0.20700549081622488
+INFO:root:epoch = 18 & cost = 0.2036357063443662
+INFO:root:epoch = 19 & cost = 0.2005894957210996
+INFO:root:epoch = 20 & cost = 0.19892427682928632
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	930		160
+INFO:root:False	252		2840
+INFO:root:Accuracy = 90.15
+INFO:root:
+INFO:root:Running No Stemming With TFIDF Features
+INFO:root:epoch = 1 & cost = 0.15006905698549752
+INFO:root:epoch = 2 & cost = 0.10340534742604776
+INFO:root:epoch = 3 & cost = 0.08023212678022573
+INFO:root:epoch = 4 & cost = 0.06589790323216167
+INFO:root:epoch = 5 & cost = 0.056168905860370696
+INFO:root:epoch = 6 & cost = 0.049483890053497945
+INFO:root:epoch = 7 & cost = 0.04399929906161688
+INFO:root:epoch = 8 & cost = 0.039778361875528155
+INFO:root:epoch = 9 & cost = 0.036363924425124476
+INFO:root:epoch = 10 & cost = 0.033526667913236816
+INFO:root:epoch = 11 & cost = 0.031109316795593325
+INFO:root:epoch = 12 & cost = 0.029093592221668352
+INFO:root:epoch = 13 & cost = 0.027317093334561036
+INFO:root:epoch = 14 & cost = 0.02577789454163301
+INFO:root:epoch = 15 & cost = 0.024472659728804996
+INFO:root:epoch = 16 & cost = 0.02320976177913628
+INFO:root:epoch = 17 & cost = 0.022145346846824357
+INFO:root:epoch = 18 & cost = 0.021169587972153993
+INFO:root:epoch = 19 & cost = 0.02028421304854712
+INFO:root:epoch = 20 & cost = 0.01949357836446947
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	939		136
+INFO:root:False	243		2864
+INFO:root:Accuracy = 90.94
+INFO:root:
+INFO:root:

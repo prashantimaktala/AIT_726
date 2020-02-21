@@ -1,3 +1,28 @@
+"""
+AIT726 HW 1 Due 2/20/2020
+Sentiment classification using Naive Bayes and Logistic Regression on a dataset of 4181 training and 4182 testing tweets.
+Authors: Yasas, Prashanti, Ashwini
+Command to run the file: naive_bayes.py
+
+Flow:
+i. main
+ii. run  default parameters: stem = false, binary = true
+    1.Train the model
+        a. Read the dataset
+        b. Perform preprocessing
+            - Build vocab
+        c. Train the model
+            - calculate prior and likelihood
+    2. Test the model
+        a. Read the dataset
+        b. Perform preprocessing
+            - tokenize
+        c. Predict
+        d. Evaluate the model
+            - Save confusion matrix and accuracy to log file
+
+"""
+
 import os
 import re
 import string
@@ -18,6 +43,10 @@ emoticons_re = r'(\:\w+\:|\<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[\:\;\=]|[\:\;\=B8][\
 
 
 def read_files(path):
+    """
+    read_files - helps to navigate through the files in the folder structure, read the files and convert them to
+    dataframe which consists of tweet and labels.
+    """
     corpus = []
     for label in ['negative', 'positive']:
         tmp = os.path.join(path, label)
@@ -30,6 +59,11 @@ def read_files(path):
 
 
 def tokenize(x, stem=False):
+    """
+    tokenize function takes care of handling removal of html tags, conversion of capitalized words to lowercase except
+    for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize
+    as well as tokens with stemming using PotterStemmer.
+    """
     x = re.sub(r'(?:<[^>]+>)', '', x)
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)
     emoticon_tokens = re.split(emoticons_re, x)
@@ -45,6 +79,9 @@ def tokenize(x, stem=False):
 
 
 def vocabulary(tokenized_tweets):
+    """
+      vocabulary - we have created word by word vocabulary for the complete training data for all the provided tokens
+    """
     vocab = set()
     for tokens in tokenized_tweets:
         vocab.update(tokens)
@@ -52,6 +89,9 @@ def vocabulary(tokenized_tweets):
 
 
 def bag_of_words(tokenized_tweet, vocab, binary=True):
+    """
+      bag_of_words - we have created both binary and frequency count representation of BOW
+    """
     if binary:
         return [1 if v in tokenized_tweet else 0 for v in vocab]
     else:
@@ -59,6 +99,9 @@ def bag_of_words(tokenized_tweet, vocab, binary=True):
 
 
 def tf_idf(collection, vocab, idf=None):
+    """
+          tf_idf - we have created term frequency - inverse document frequency matrix for all the documents
+    """
     tf = [[doc.count(v) for v in vocab] for doc in collection]
     tf = np.array([[1 + np.log(count) if count > 0 else 0 for count in doc] for doc in tf])
     if idf is None:
@@ -70,6 +113,9 @@ def tf_idf(collection, vocab, idf=None):
 
 
 def preprocess(df, stem=False, use_tfidf=False, binary=True, vocab=None, idf=None):
+    """
+    preprocess - calls appropriate tokenize to generate training and test data with required vocabulary and distribution
+    """
     if stem:
         tokens = df.tweet.apply(lambda x: tokenize(x, True))
     else:
@@ -93,14 +139,12 @@ def preprocess(df, stem=False, use_tfidf=False, binary=True, vocab=None, idf=Non
 # TODO: Check
 def sigmoid(x):
     """ Sigmoid Function
-
+     Applies Sigmoid
     :param x: var
     :return: Sigmoid value
     """
     return 1 / (1 + np.exp(-x))
 
-
-# TODO: Check
 def pred_proba(model, features):
     """ Predict the (softmax) probability of each document being positive.
 
@@ -112,26 +156,49 @@ def pred_proba(model, features):
     return np.array([sigmoid(np.dot(w, x) + b) for x in features])
 
 
-# TODO: Implement
 def predict(model, features, threshold=0.5):
+    """
+      predict - for values greater than 0.5 we predict it as 1 , 0 otherwise
+    """
     return pred_proba(model, features) > threshold
 
 
-# TODO: Implement
 def cross_entropy_loss(y, y_hat):
+    """
+    cross_entropy_loss - Applies cross entropy loss
+    :param y:
+    :param y_hat:
+    :return:
+    """
     return - (y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
 
 
-# TODO: Implement
 def cost(model, features, labels):
+    """
+    cost - derives cost function for the whole dataset
+    :param model:
+    :param features:
+    :param labels:
+    :return:
+    """
     y_pred = pred_proba(model, features)
     m = labels.shape[0]
     result = np.sum([cross_entropy_loss(y, y_hat) for y, y_hat in zip(labels, y_pred)]) / m
     return result
 
 
-# TODO: Implement
 def train(features, labels, n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001):
+    """
+    train - create the model by using mini batch gradient descent to update the model parameters in multiple epoch
+    :param features:
+    :param labels:
+    :param n_iter:
+    :param batch_size:
+    :param learning_rate:
+    :param penalty:
+    :param alpha:
+    :return:
+    """
     num_features = features.shape[1]
     model = {'w': np.zeros(num_features), 'b': 0.0}
     m = labels.shape[0]
@@ -161,6 +228,9 @@ def train(features, labels, n_iter=20, batch_size=10, learning_rate=0.05, penalt
 
 
 def evaluate(y_true, y_pred, true_label=1):
+    """
+        evaluate - calculates and prints accuracy and confusion matrix for predictions
+    """
     true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
     false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
     true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
@@ -173,8 +243,10 @@ def evaluate(y_true, y_pred, true_label=1):
     logging.info('')
 
 
-# noinspection DuplicatedCode
 def run(stem=False, mode='binary'):
+    """
+     run - Execution of appropriate functions as per the required calls
+    """
     df_train = read_files('./data/tweet/train')
     idf = None
     if mode == 'binary':
@@ -198,6 +270,17 @@ def run(stem=False, mode='binary'):
 
 
 def validate(stem=False, mode='binary', n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001):
+    """
+    validate - validates by testing on a part of training set.
+    :param stem:
+    :param mode:
+    :param n_iter:
+    :param batch_size:
+    :param learning_rate:
+    :param penalty:
+    :param alpha:
+    :return:
+    """
     df = read_files('./data/tweet/train')
     df_train, df_test = df[:round(df.shape[0] * 0.8)], df[round(df.shape[0] * 0.8):]
     idf = None
@@ -222,6 +305,9 @@ def validate(stem=False, mode='binary', n_iter=20, batch_size=10, learning_rate=
 
 
 def main():
+    """
+     main - runs all the modules via run function
+    """
     logging.info('AIT_726 Logistic Regression Output')
     logging.info('Authors: Yasas, Prashanti , Ashwini')
     for penalty in [None, 'l2']:

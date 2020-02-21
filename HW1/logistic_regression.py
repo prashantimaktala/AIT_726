@@ -145,6 +145,7 @@ def sigmoid(x):
     """
     return 1 / (1 + np.exp(-x))
 
+
 def pred_proba(model, features):
     """ Predict the (softmax) probability of each document being positive.
 

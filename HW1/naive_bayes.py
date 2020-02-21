@@ -34,6 +34,7 @@ from nltk.stem.porter import PorterStemmer
 
 # use logging to save the results
 logging.basicConfig(filename='naive_bayes_results.log', level=logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 stemmer = PorterStemmer()
 

@@ -6,6 +6,10 @@ import numpy as np
 import pandas as pd
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
+import logging
+
+logging.basicConfig(filename='logistic_regression_results.log', level=logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler())
 
 stemmer = PorterStemmer()
 
@@ -51,21 +55,39 @@ def bag_of_words(tokenized_tweet, vocab, binary=True):
     if binary:
         return [1 if v in tokenized_tweet else 0 for v in vocab]
     else:
-        return [tokenized_tweet.count(v) if v in tokenized_tweet else 0 for v in vocab]
+        return [tokenized_tweet.count(v) for v in vocab]
 
 
-def preprocess(df, stem=False, binary=True, vocab=None):
+def tf_idf(collection, vocab, idf=None):
+    tf = [[doc.count(v) for v in vocab] for doc in collection]
+    tf = np.array([[1 + np.log(count) if count > 0 else 0 for count in doc] for doc in tf])
+    if idf is None:
+        N = len(collection)
+        df = [len([1 for doc in collection if w in doc]) for w in vocab]
+        idf = np.array([np.log(N / t) for t in df])
+    output = tf * idf
+    return output, idf
+
+
+def preprocess(df, stem=False, use_tfidf=False, binary=True, vocab=None, idf=None):
     if stem:
         tokens = df.tweet.apply(lambda x: tokenize(x, True))
     else:
         tokens = df.tweet.apply(tokenize)
     if vocab is None:
         vocab = vocabulary(tokens)
-    if binary:
-        output = tokens.apply(lambda x: bag_of_words(x, vocab))
+    if use_tfidf:
+        output, idf = tf_idf(tokens, vocab, idf)
     else:
-        output = tokens.apply(lambda x: bag_of_words(x, vocab, False))
-    return np.array(output.values.tolist()), vocab
+        if binary:
+            output = tokens.apply(lambda x: bag_of_words(x, vocab))
+        else:
+            output = tokens.apply(lambda x: bag_of_words(x, vocab, False))
+    if not isinstance(output, np.ndarray):
+        output = np.array(output.values.tolist())
+    if use_tfidf:
+        return output, vocab, idf
+    return output, vocab
 
 
 # TODO: Check
@@ -109,12 +131,12 @@ def cost(model, features, labels):
 
 
 # TODO: Implement
-def train(features, labels, n_iter=150, batch_size=10, eta=0.01, penalty=None, alpha=0.001):
+def train(features, labels, n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001):
     num_features = features.shape[1]
     model = {'w': np.zeros(num_features), 'b': 0.0}
     m = labels.shape[0]
     cost_lst = []
-    for _ in range(n_iter):
+    for epoch in range(n_iter):
         idxes = np.random.permutation(m)
         x_shuffled, y_shuffled = features[idxes], labels[idxes]
         # mini-batch gradient descent
@@ -129,9 +151,12 @@ def train(features, labels, n_iter=150, batch_size=10, eta=0.01, penalty=None, a
                     # L2 - euclidean distance from the origin
                     r_w = model['w']
             # stochastic gradient ascent
-            model['w'] += eta * (np.dot(np.transpose(x_batch), (y_batch - z).reshape(-1)).reshape(
+            model['w'] += learning_rate * (np.dot(np.transpose(x_batch), (y_batch - z).reshape(-1)).reshape(
                 -1) / m_batch - alpha * r_w / m_batch)
-            model['b'] += eta * np.sum(y_batch - z) / m_batch
+            model['b'] += learning_rate * np.sum(y_batch - z) / m_batch
+        cost_val = cost(model, features, labels)
+        cost_lst.append(cost_val)
+        logging.info('epoch = {} & cost = {}'.format(epoch + 1, cost_val))
     return model
 
 
@@ -140,40 +165,87 @@ def evaluate(y_true, y_pred, true_label=1):
     false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
     true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
     false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
-    print('Confusion Matrix: ')
-    print('\t\tTrue\tFalse')
-    print('True\t%d\t\t%d' % (true_positives, false_positives))
-    print('False\t%d\t\t%d' % (false_negatives, true_negatives))
-    print()
-    print('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
-    print()
+    logging.info('Confusion Matrix: ')
+    logging.info('\t\tTrue\tFalse')
+    logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
+    logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
+    logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
+    logging.info('')
 
 
 # noinspection DuplicatedCode
-def run(stem=False, binary=True):
+def run(stem=False, mode='binary'):
     df_train = read_files('./data/tweet/train')
-    x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
+    idf = None
+    if mode == 'binary':
+        x_train, vocab = preprocess(df_train, stem=stem, binary=True)
+    elif mode == 'tfidf':
+        x_train, vocab, idf = preprocess(df_train, stem=stem, use_tfidf=True)
+    else:
+        x_train, vocab = preprocess(df_train, stem=stem, binary=False)
     y_train = df_train.label.values
     model = train(x_train, y_train, penalty='l2')
     df_test = read_files('./data/tweet/test')
-    x_test, _ = preprocess(df_test, stem=stem, binary=binary, vocab=vocab)
+    if mode == 'binary':
+        x_test, _ = preprocess(df_test, stem=stem, binary=True, vocab=vocab)
+    elif mode == 'tfidf':
+        x_test, _, _ = preprocess(df_test, stem=stem, use_tfidf=True, vocab=vocab, idf=idf)
+    else:
+        x_test, _ = preprocess(df_test, stem=stem, binary=False, vocab=vocab)
+    y_pred = predict(model, x_test)
+    y_test = df_test.label.values
+    evaluate(y_test, y_pred)
+
+
+def validate(stem=False, mode='binary', n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001):
+    df = read_files('./data/tweet/train')
+    df_train, df_test = df[:round(df.shape[0] * 0.8)], df[round(df.shape[0] * 0.8):]
+    idf = None
+    if mode == 'binary':
+        x_train, vocab = preprocess(df_train, stem=stem, binary=True)
+    elif mode == 'tfidf':
+        x_train, vocab, idf = preprocess(df_train, stem=stem, use_tfidf=True)
+    else:
+        x_train, vocab = preprocess(df_train, stem=stem, binary=False)
+    y_train = df_train.label.values
+    model = train(x_train, y_train, n_iter=n_iter, batch_size=batch_size, learning_rate=learning_rate, penalty=penalty,
+                  alpha=alpha)
+    if mode == 'binary':
+        x_test, _ = preprocess(df_test, stem=stem, binary=True, vocab=vocab)
+    elif mode == 'tfidf':
+        x_test, _, _ = preprocess(df_test, stem=stem, use_tfidf=True, vocab=vocab, idf=idf)
+    else:
+        x_test, _ = preprocess(df_test, stem=stem, binary=False, vocab=vocab)
     y_pred = predict(model, x_test)
     y_test = df_test.label.values
     evaluate(y_test, y_pred)
 
 
 def main():
-    print('Running Stemming With Frequency BoW Features')
-    run(stem=True, binary=False)
+    logging.info('AIT_726 Logistic Regression Output')
+    logging.info('Authors: Yasas, Prashanti , Ashwini')
+    for penalty in [None, 'l2']:
+        if penalty is None:
+            logging.info('Evaluating without Regularization')
+        else:
+            logging.info('Evaluating with L2 Regularization')
+        logging.info('Running Stemming With Frequency BoW Features')
+        run(stem=True, mode='freq')
+        logging.info('Running Stemming With Binary BoW Features')
+        run(stem=True, mode='binary')
+        logging.info('Running No Stemming With Frequency BoW Features')
+        run(stem=False, mode='freq')
+        logging.info('Running Stemming With TFIDF Features')
+        run(stem=True, mode='tfidf')
+        logging.info('Running No Stemming With Binary BoW Features')
+        run(stem=False, mode='binary')
+        logging.info('Running No Stemming With TFIDF Features')
+        run(stem=False, mode='tfidf')
+        logging.info('')
 
-    print('Running Stemming With Binary BoW Features')
-    run(stem=True, binary=True)
 
-    print('Running No Stemming With Frequency BoW Features')
-    run(stem=False, binary=False)
-
-    print('Running No Stemming With Binary BoW Features')
-    run(stem=False, binary=True)
+def main_validate():
+    validate(stem=False, mode='binary', n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001)
 
 
 if __name__ == '__main__':

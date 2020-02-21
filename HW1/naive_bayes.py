@@ -22,11 +22,12 @@ stemmer = PorterStemmer()
 # regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
 emoticons_re = r'(\:\w+\:|\<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[\:\;\=]|[\:\;\=B8][\-\^]?[3DOPp\@\$\*\\\)\(\/\|])(?=\s|[\!\.\?]|$)'
 
-""" read_files - helps to navigate through the files in the folder structure, read the files and convert them to 
-dataframe which consists of tweet and labels. """
-
 
 def read_files(path):
+    """
+    read_files - helps to navigate through the files in the folder structure, read the files and convert them to
+    dataframe which consists of tweet and labels.
+    """
     corpus = []
     for label in ['negative', 'positive']:
         tmp = os.path.join(path, label)
@@ -38,12 +39,12 @@ def read_files(path):
     return df
 
 
-"""tokenize function takes care of handling removal of html tags, conversion of capitalized words to lowercase except 
-for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize 
-as well as tokens with stemming using PotterStemmer. """
-
-
 def tokenize(x, stem=False):
+    """
+    tokenize function takes care of handling removal of html tags, conversion of capitalized words to lowercase except
+    for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize
+    as well as tokens with stemming using PotterStemmer.
+    """
     x = re.sub(r'(?:<[^>]+>)', '', x)
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)
     emoticon_tokens = re.split(emoticons_re, x)
@@ -58,30 +59,30 @@ def tokenize(x, stem=False):
     return tokens
 
 
-""" vocabulary - we have created word by word vocabulary for the complete training data for all the provided tokens"""
-
-
 def vocabulary(tokenized_tweets):
+    """
+    vocabulary - we have created word by word vocabulary for the complete training data for all the provided tokens
+    """
     vocab = set()
     for tokens in tokenized_tweets:
         vocab.update(tokens)
     return list(vocab)
 
 
-""" bag_of_words - we have created both binary and frequency count representation of BOW"""
-
-
 def bag_of_words(tokenized_tweet, vocab, binary=True):
+    """
+    bag_of_words - we have created both binary and frequency count representation of BOW
+    """
     if binary:
         return [1 if v in tokenized_tweet else 0 for v in vocab]
     else:
         return [tokenized_tweet.count(v) if v in tokenized_tweet else 0 for v in vocab]
 
 
-""" preprocess - calls appropriate tokenize to generate training and test data with required vocabulary """
-
-
 def preprocess(df, stem=False, binary=True, vocab=None):
+    """
+    preprocess - calls appropriate tokenize to generate training and test data with required vocabulary
+    """
     if stem:
         tokens = df.tweet.apply(lambda x: tokenize(x, True))
     else:
@@ -94,11 +95,10 @@ def preprocess(df, stem=False, binary=True, vocab=None):
         output = tokens.apply(lambda x: bag_of_words(x, vocab, False))
     return np.array(output.values.tolist()), vocab
 
-
-""" train - calculates the class prior and likelihoods for use in Naive Bayes predictions """
-
-
 def train(features, labels):
+    """
+    train - calculates the class prior and likelihoods for use in Naive Bayes predictions
+    """
     if isinstance(labels, pd.Series):
         labels = labels.values
     prior = {c: np.log(labels.tolist().count(c) / len(labels)) for c in set(labels)}
@@ -111,11 +111,10 @@ def train(features, labels):
         likelihood[c] = np.log((count_wi + 1) / (count_all + len(count_wi)))
     return dict(prior=prior, likelihood=likelihood, categories=categories)
 
-
-""" predict - predicts the class of all of the test documents for all of the feature vectors using Naive Bayes """
-
-
 def predict(model, features):
+    """
+     predict - predicts the class of all of the test documents for all of the feature vectors using Naive Bayes
+     """
     y_log_prob = None
     for c in model['categories']:
         y_log_prob_c = model['prior'][c] + np.sum(features * model['likelihood'][c], axis=1)
@@ -127,11 +126,10 @@ def predict(model, features):
     y_pred = np.array([model['categories'][x] for x in y_argmax])
     return y_pred
 
-
-""" evaluate - calculates and prints accuracy and confusion matrix for predictions """
-
-
 def evaluate(y_true, y_pred, true_label=1):
+    """
+     evaluate - calculates and prints accuracy and confusion matrix for predictions
+     """
     true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
     false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
     true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
@@ -143,11 +141,10 @@ def evaluate(y_true, y_pred, true_label=1):
     logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
     logging.info('')
 
-
-""" run - Execution of appropriate functions as per the required call """
-
-
 def run(stem=False, binary=True):
+    """
+    run - Execution of appropriate functions as per the required call
+    """
     df_train = read_files('./data/tweet/train')
     x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
     y_train = df_train.label.values
@@ -158,11 +155,12 @@ def run(stem=False, binary=True):
     y_test = df_test.label.values
     evaluate(y_test, y_pred)
 
-
-""" main - runs all the modules via run function"""
-
-
 def main():
+    """
+    main - runs all the modules via run function
+    """
+    logging.info('AIT_726 Naive_bayes Output')
+    logging.info('Authors: Yasas, Prashanti , Ashwini')
     logging.info('Running Stemming With Frequency BoW Features')
     run(stem=True, binary=False)
 

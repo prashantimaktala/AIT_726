@@ -9,7 +9,8 @@ from nltk.stem.porter import PorterStemmer
 
 stemmer = PorterStemmer()
 
-emoticons_pattern = r'(:\)|:-\)|:\(|:-\(|;\);-\)|:-O|8-|:P|:D|:\||:S|:\$|:@|8o\||\+o\(|\(H\)|\(C\)|\(\?\))'
+# regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
+emoticons_re = r'(\:\w+\:|\<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[\:\;\=]|[\:\;\=B8][\-\^]?[3DOPp\@\$\*\\\)\(\/\|])(?=\s|[\!\.\?]|$)'
 
 
 def read_files(path):
@@ -27,10 +28,10 @@ def read_files(path):
 def tokenize(x, stem=False):
     x = re.sub(r'(?:<[^>]+>)', '', x)
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)
-    emoticon_tokens = re.split(emoticons_pattern, x)
+    emoticon_tokens = re.split(emoticons_re, x)
     tokens = []
     for t in emoticon_tokens:
-        if re.match(emoticons_pattern, t):
+        if re.match(emoticons_re, t):
             tokens.append(t)
         else:
             tokens += word_tokenize(x)
@@ -94,33 +95,43 @@ def predict(model, features, threshold=0.5):
     return pred_proba(model, features) > threshold
 
 
-# # TODO: Implement
-# def cross_entropy_loss(y, y_hat):
-#     return - (y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
-
-
-# # TODO: Implement
-# def cost(model, features, labels):
-#     y_pred = pred_proba(model, features)
-#     m = labels.shape[0]
-#     result = np.sum([cross_entropy_loss(y, y_hat) for y, y_hat in zip(labels, y_pred)]) / m
-#     return result
+# TODO: Implement
+def cross_entropy_loss(y, y_hat):
+    return - (y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
 
 
 # TODO: Implement
-def train(features, labels, n_iter=100, batch_size=10, eta=0.05):
-    model = {'w': np.zeros(features.shape[1]), 'b': 0.0}
+def cost(model, features, labels):
+    y_pred = pred_proba(model, features)
     m = labels.shape[0]
+    result = np.sum([cross_entropy_loss(y, y_hat) for y, y_hat in zip(labels, y_pred)]) / m
+    return result
+
+
+# TODO: Implement
+def train(features, labels, n_iter=150, batch_size=10, eta=0.01, penalty=None, alpha=0.001):
+    num_features = features.shape[1]
+    model = {'w': np.zeros(num_features), 'b': 0.0}
+    m = labels.shape[0]
+    cost_lst = []
     for _ in range(n_iter):
         idxes = np.random.permutation(m)
         x_shuffled, y_shuffled = features[idxes], labels[idxes]
+        # mini-batch gradient descent
         for batch in range(0, m, batch_size):
             x_batch, y_batch = x_shuffled[batch:batch + batch_size], y_shuffled[batch:batch + batch_size]
             m_batch = y_batch.shape[0]
-            z = pred_proba(model, x_batch)
-            # TODO: add regularization
-            model['w'] -= eta * np.dot(np.transpose(x_batch), (z - y_batch).reshape(-1)).reshape(-1) / m_batch
-            model['b'] -= eta * np.sum(z - y_batch) / m_batch
+            z = pred_proba(model, x_batch)  # estimated y
+            r_w = 0
+            #  regularization
+            if isinstance(penalty, str):
+                if penalty.lower() == 'l2':  # Ridge Regression
+                    # L2 - euclidean distance from the origin
+                    r_w = model['w']
+            # stochastic gradient ascent
+            model['w'] += eta * (np.dot(np.transpose(x_batch), (y_batch - z).reshape(-1)).reshape(
+                -1) / m_batch - alpha * r_w / m_batch)
+            model['b'] += eta * np.sum(y_batch - z) / m_batch
     return model
 
 
@@ -143,7 +154,7 @@ def run(stem=False, binary=True):
     df_train = read_files('./data/tweet/train')
     x_train, vocab = preprocess(df_train, stem=stem, binary=binary)
     y_train = df_train.label.values
-    model = train(x_train, y_train)
+    model = train(x_train, y_train, penalty='l2')
     df_test = read_files('./data/tweet/test')
     x_test, _ = preprocess(df_test, stem=stem, binary=binary, vocab=vocab)
     y_pred = predict(model, x_test)

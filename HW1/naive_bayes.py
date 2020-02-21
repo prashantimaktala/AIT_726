@@ -16,7 +16,8 @@ from nltk.stem.porter import PorterStemmer
 
 stemmer = PorterStemmer()
 
-emoticons_pattern = r'(:\)|:-\)|:\(|:-\(|;\);-\)|:-O|8-|:P|:D|:\||:S|:\$|:@|8o\||\+o\(|\(H\)|\(C\)|\(\?\))'
+# regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
+emoticons_re = r'(\:\w+\:|\<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[\:\;\=]|[\:\;\=B8][\-\^]?[3DOPp\@\$\*\\\)\(\/\|])(?=\s|[\!\.\?]|$)'
 
 """ read_files - helps to navigate through the files in the folder structure, read the files and convert them to 
 dataframe which consists of tweet and labels. """
@@ -42,10 +43,10 @@ as well as tokens with stemming using PotterStemmer. """
 def tokenize(x, stem=False):
     x = re.sub(r'(?:<[^>]+>)', '', x)
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)
-    emoticon_tokens = re.split(emoticons_pattern, x)
+    emoticon_tokens = re.split(emoticons_re, x)
     tokens = []
     for t in emoticon_tokens:
-        if re.match(emoticons_pattern, t):
+        if re.match(emoticons_re, t):
             tokens.append(t)
         else:
             tokens += word_tokenize(x)

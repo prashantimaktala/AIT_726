@@ -1,0 +1,28 @@
+INFO:root:Running Stemming With Frequency BoW Features
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	849		97
+INFO:root:False	333		2903
+INFO:root:Accuracy = 89.72
+INFO:root:
+INFO:root:Running Stemming With Binary BoW Features
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	812		81
+INFO:root:False	370		2919
+INFO:root:Accuracy = 89.22
+INFO:root:
+INFO:root:Running No Stemming With Frequency BoW Features
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	833		94
+INFO:root:False	349		2906
+INFO:root:Accuracy = 89.41
+INFO:root:
+INFO:root:Running No Stemming With Binary BoW Features
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	792		74
+INFO:root:False	390		2926
+INFO:root:Accuracy = 88.90
+INFO:root:

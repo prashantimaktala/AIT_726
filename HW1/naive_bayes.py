@@ -7,12 +7,15 @@ Command to run the file: naive_bayes.py
 
 import os
 import re
-import string
 
 import numpy as np
 import pandas as pd
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
+
+import logging
+
+logging.basicConfig(filename='naive_bayes_results.log', level=logging.INFO)
 
 stemmer = PorterStemmer()
 
@@ -133,13 +136,12 @@ def evaluate(y_true, y_pred, true_label=1):
     false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
     true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
     false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
-    print('Confusion Matrix: ')
-    print('\t\tTrue\tFalse')
-    print('True\t%d\t\t%d' % (true_positives, false_positives))
-    print('False\t%d\t\t%d' % (false_negatives, true_negatives))
-    print()
-    print('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
-    print()
+    logging.info('Confusion Matrix: ')
+    logging.info('\t\tTrue\tFalse')
+    logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
+    logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
+    logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
+    logging.info('')
 
 
 """ run - Execution of appropriate functions as per the required call """
@@ -161,16 +163,16 @@ def run(stem=False, binary=True):
 
 
 def main():
-    print('Running Stemming With Frequency BoW Features')
+    logging.info('Running Stemming With Frequency BoW Features')
     run(stem=True, binary=False)
 
-    print('Running Stemming With Binary BoW Features')
+    logging.info('Running Stemming With Binary BoW Features')
     run(stem=True, binary=True)
 
-    print('Running No Stemming With Frequency BoW Features')
+    logging.info('Running No Stemming With Frequency BoW Features')
     run(stem=False, binary=False)
 
-    print('Running No Stemming With Binary BoW Features')
+    logging.info('Running No Stemming With Binary BoW Features')
     run(stem=False, binary=True)
 
 

@@ -2,7 +2,7 @@
 AIT726 HW 1 Due 2/20/2020
 Sentiment classification using Naive Bayes and Logistic Regression on a dataset of 4181 training and 4182 testing tweets.
 Authors: Yasas, Prashanti, Ashwini
-Command to run the file: naive_bayes.py
+Command to run the file: python logistic_regression.py
 
 Flow:
 i. main
@@ -10,29 +10,40 @@ ii. run  default parameters: stem = false, binary = true
     1.Train the model
         a. Read the dataset
         b. Perform preprocessing
-            - Build vocab
+             - tokenize(stem/no stem)
+             - build vocab
+             - extract features
+                1. tf_idf
+                2. binary bow
+                3. freq bow
         c. Train the model
-            - calculate prior and likelihood
+            - calculate gradient
+            - apply gradient descent in mini batches to update model parameters
+            - logging cost value
     2. Test the model
         a. Read the dataset
         b. Perform preprocessing
             - tokenize
+            - extract features
+            1. tf_idf
+            2. binary bow
+            3. freq bow
         c. Predict
         d. Evaluate the model
             - Save confusion matrix and accuracy to log file
-
+ii. main_validate
+    1. validate part of training set
 """
 
 import os
 import re
-import string
-
 import numpy as np
 import pandas as pd
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
 import logging
 
+# use logging to save the results
 logging.basicConfig(filename='logistic_regression_results.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -144,6 +155,7 @@ def sigmoid(x):
     :return: Sigmoid value
     """
     return 1 / (1 + np.exp(-x))
+
 
 def pred_proba(model, features):
     """ Predict the (softmax) probability of each document being positive.

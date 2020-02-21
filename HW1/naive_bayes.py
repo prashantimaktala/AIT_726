@@ -2,7 +2,7 @@
 AIT726 HW 1 Due 2/20/2020
 Sentiment classification using Naive Bayes and Logistic Regression on a dataset of 4181 training and 4182 testing tweets.
 Authors: Yasas, Prashanti, Ashwini
-Command to run the file: naive_bayes.py
+Command to run the file: python naive_bayes.py
 
 Flow:
 i. main
@@ -11,6 +11,10 @@ ii. run  default parameters: stem = false, binary = true
         a. Read the dataset
         b. Perform preprocessing
             - Build vocab
+            - tokenize(stem/no stem)
+            - extract features
+                1.binary bow
+                2.freq bow
         c. Train the model
             - calculate prior and likelihood
     2. Test the model

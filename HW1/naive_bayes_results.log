@@ -1,3 +1,5 @@
+INFO:root:AIT_726 Naive_bayes Output
+INFO:root:Authors: Yasas, Prashanti , Ashwini
 INFO:root:Running Stemming With Frequency BoW Features
 INFO:root:Confusion Matrix: 
 INFO:root:		True	False

@@ -35,7 +35,6 @@ import pandas as pd
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
 
-
 # use logging to save the results
 logging.basicConfig(filename='naive_bayes_results.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
@@ -55,10 +54,10 @@ def read_files(path):
     for label in ['negative', 'positive']:
         tmp = os.path.join(path, label)
         for file in os.listdir(tmp):
-            with open(os.path.join(tmp, file), 'r', encoding='utf-8') as f:   #join path to read all the tweets
-                tweet = f.read().strip()     # strip function to remove leading and trailing spaces in each tweet
+            with open(os.path.join(tmp, file), 'r', encoding='utf-8') as f:  # join path to read all the tweets
+                tweet = f.read().strip()  # strip function to remove leading and trailing spaces in each tweet
                 corpus.append((tweet, 1 if label == 'positive' else 0))
-    df = pd.DataFrame.from_records(corpus, columns=['tweet', 'label'])  #build dataframe
+    df = pd.DataFrame.from_records(corpus, columns=['tweet', 'label'])  # build dataframe
     return df
 
 
@@ -68,17 +67,17 @@ def tokenize(x, stem=False):
     for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize
     as well as tokens with stemming using PotterStemmer.
     """
-    x = re.sub(r'(?:<[^>]+>)', '', x)  #substitute html tags
+    x = re.sub(r'(?:<[^>]+>)', '', x)  # substitute html tags
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)  # group 0 refers to A-Z, lowercase group 0
     emoticon_tokens = re.split(emoticons_re, x)  # separate emoticons
     tokens = []
     for t in emoticon_tokens:
         if re.match(emoticons_re, t):
-            tokens.append(t)   # append emoticons without work tokenize
+            tokens.append(t)  # append emoticons without work tokenize
         else:
             tokens += word_tokenize(x)
     if stem:
-        tokens = [stemmer.stem(t) for t in tokens]  #perform stemming
+        tokens = [stemmer.stem(t) for t in tokens]  # perform stemming
     return tokens
 
 
@@ -89,7 +88,7 @@ def vocabulary(tokenized_tweets):
     vocab = set()
     for tokens in tokenized_tweets:
         vocab.update(tokens)
-    return list(vocab)   #create complete list of tokens for all the tweets
+    return list(vocab)  # create complete list of tokens for all the tweets
 
 
 def bag_of_words(tokenized_tweet, vocab, binary=True):

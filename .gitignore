@@ -1,4 +1,5 @@
 /.idea/
 ./data
+!./data/raw/*
 !.gitkeep
 /Homework 1/data/

@@ -17,20 +17,3 @@ DATA_PATH = {
     'asba.semeval16.raw.test.gold': join_path(PROJECT_PATH, 'data', 'raw', 'semeval16_asba',
                                               'EN_REST_SB1_TEST.gold.xml'),
 }
-
-datasets = Object()
-
-datasets.foursquare = Object()
-datasets.foursquare.raw = Object()
-datasets.foursquare.raw.test = Object()
-datasets.foursquare.raw.test.a = 'datasets.foursquare.raw.test.a'
-datasets.foursquare.raw.test.b = 'datasets.foursquare.raw.test.b'
-datasets.foursquare.raw.test.gold = 'datasets.foursquare.raw.test.gold'
-
-datasets.semeval16 = Object()
-datasets.semeval16.raw = Object()
-datasets.semeval16.raw.train = 'asba.semeval16.raw.train'
-datasets.semeval16.raw.test = Object()
-datasets.semeval16.raw.test.a = 'asba.semeval16.raw.test.a'
-datasets.semeval16.raw.test.b = 'asba.semeval16.raw.test.b'
-datasets.semeval16.raw.test.gold = 'asba.semeval16.raw.test.gold'

@@ -11,11 +11,11 @@ def evaluate(y_true, y_pred):
     f1_macro = f1_score(y_true, y_pred, average='macro')
     f1_micro = f1_score(y_true, y_pred, average='micro')
     return pd.DataFrame([
-        {'metric': 'accuracy', 'score': accuracy},
-        {'metric': 'precision_macro', 'score': precision_macro},
-        {'metric': 'precision_micro', 'score': precision_micro},
-        {'metric': 'recall_macro', 'score': recall_macro},
-        {'metric': 'recall_micro', 'score': recall_micro},
-        {'metric': 'f1_macro', 'score': f1_macro},
-        {'metric': 'f1_micro', 'score': f1_micro},
-    ])
+        {'index': 'accuracy', 'value': accuracy},
+        {'index': 'precision_macro', 'value': precision_macro},
+        {'index': 'precision_micro', 'value': precision_micro},
+        {'index': 'recall_macro', 'value': recall_macro},
+        {'index': 'recall_micro', 'value': recall_micro},
+        {'index': 'f1_macro', 'value': f1_macro},
+        {'index': 'f1_micro', 'value': f1_micro},
+    ]).set_index('index')['value']

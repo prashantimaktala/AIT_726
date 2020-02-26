@@ -3,3 +3,4 @@
 !./data/raw/*
 !.gitkeep
 /Homework 1/data/
+.ipynb_checkpoints/

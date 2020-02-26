@@ -1,5 +1,9 @@
+from absa import model
+
+
 def main():
-    pass
+    scores = model.evaluate([1], [1])
+    print(scores.to_string())
 
 
 if __name__ == '__main__':

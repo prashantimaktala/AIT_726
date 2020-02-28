@@ -33,11 +33,13 @@ import logging
 import numpy as np
 import pandas as pd
 from nltk import word_tokenize
-from nltk.stem.porter import PorterStemmer
+from nltk.stem.porter import PorterStemmer as Stemmer
+from keras import models
+from keras import layers
 
 
 # use logging to save the results
-logging.basicConfig(filename='feedfowrardResults.log', level=logging.INFO)
+logging.basicConfig(filename='feedforwardResults.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 
 # regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
@@ -75,7 +77,7 @@ def tokenize(x, stem=False):
         else:
             tokens += word_tokenize(x)
     if stem:
-        tokens = [stemmer.stem(t) for t in tokens]  # perform stemming
+        tokens = [Stemmer.stem(t) for t in tokens]  # perform stemming
     return tokens
 
 
@@ -102,6 +104,7 @@ def tf_idf(collection, vocab):
     output = tf * idf
     return output
 
+
 def preprocess(df, stem=False, vocab=None):
     """
     preprocess - calls appropriate tokenize to generate training and test data with required vocabulary
@@ -115,7 +118,11 @@ def preprocess(df, stem=False, vocab=None):
 
     tfidf = tf_idf(tokens, vocab)
 
-    return  vocab, tfidf
+    if not isinstance(tfidf, np.ndarray):
+        output = np.array(tfidf.values.tolist())
+    return output, vocab, tfidf
+
+def train(features, labels, n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001):
 
 
 def run(stem=False):
@@ -123,26 +130,25 @@ def run(stem=False):
     run - Execution of appropriate functions as per the required call
     """
     df_train = read_files('./data/tweet/train')
-    x_train, vocab, tfidf = preprocess(df_train, stem=stem)
+    x_train, vocab, tf = preprocess(df_train, stem=stem)
     y_train = df_train.label.values
+    model = train(x_train, y_train)
+    df_test = read_files('./data/tweet/test')
+    x_test, _ = preprocess(df_test, stem=stem, vocab=vocab)
+    y_test = df_test.label.values
 
 def main():
     """
     main - runs all the modules via run function
     """
-    # logging.info('AIT_726 Feed Forward Neural Network')
-    # logging.info('Authors: Yasas, Prashanti , Ashwini')
-    # logging.info('Running Stemming With Frequency BoW Features')
+    logging.info('AIT_726 Feed Forward Neural Network')
+    logging.info('Authors: Yasas, Prashanti , Ashwini')
+    logging.info(' TFIDF with stemming')
     run(stem=True)
 
-    # logging.info('Running Stemming With Binary BoW Features')
-    # run(stem=True, binary=True)
-    #
-    # logging.info('Running No Stemming With Frequency BoW Features')
+    logging.info('TFIDF without stemming')
     run(stem=False)
-    #
-    # logging.info('Running No Stemming With Binary BoW Features')
-    # run(stem=False, binary=True)
+
 
 
 if __name__ == '__main__':

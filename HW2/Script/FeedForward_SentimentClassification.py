@@ -37,7 +37,7 @@ from nltk.stem.porter import PorterStemmer
 
 
 # use logging to save the results
-logging.basicConfig(filename='naive_bayes_results.log', level=logging.INFO)
+logging.basicConfig(filename='feedfowrardResults.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 
 # regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons

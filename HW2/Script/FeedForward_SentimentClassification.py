@@ -122,7 +122,36 @@ def preprocess(df, stem=False, vocab=None):
         output = np.array(tfidf.values.tolist())
     return output, vocab, tfidf
 
-def train(features, labels, n_iter=20, batch_size=10, learning_rate=0.05, penalty=None, alpha=0.001):
+
+def train(features, labels, batch_size=10, learning_rate=0.0001):
+    # Set random seed
+    np.random.seed(0)
+    # Start neural network
+    network = models.Sequential()
+
+    # Add fully connected layer with a sigmoid activation function
+    network.add(layers.Dense( activation='sigmoid', input_shape=(len(features),)))
+
+    # Add fully connected layer with a sigmoid activation function
+    network.add(layers.Dense(units=20, activation='sigmoid'))
+
+    # Add fully connected layer with a sigmoid activation function
+    network.add(layers.Dense(units=20, activation='sigmoid'))
+
+    # Add fully connected layer with a sigmoid activation function
+    network.add(layers.Dense(units=1, activation='sigmoid'))
+
+    # Compile neural network
+    network.compile(loss='rms',  # Root Mean Square
+                    optimizer='rmsprop',  # Root Mean Square Propagation
+                    metrics=['accuracy'])  # Accuracy performance metric
+
+    # Train neural network
+    model = network.fit(features,  # Features
+                          labels,  # Target vector
+                          epochs=3,  # Number of epochs
+                          verbose=1,  # Print description after each epoch
+                          batch_size=batch_size,)  # Number of observations per batch
 
 
 def run(stem=False):

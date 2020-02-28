@@ -1,0 +1,2 @@
+@VirginAmerica your mobile site is broken shows
+"{{header.elevateUser.numOfPointsAvailable || '0' | number}} Points" won't let me checkin

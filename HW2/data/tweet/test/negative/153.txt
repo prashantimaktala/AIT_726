@@ -1,0 +1,1 @@
+@SouthwestAir bos to msp msp to aus aus to bos. Site doesn't seem to display fields for the middle trip when I add the 3rd.

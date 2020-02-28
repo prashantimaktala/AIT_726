@@ -1,0 +1,1 @@
+@SouthwestAir Just got companion pass and trying to add companion flgt but get purchase.error.INVALID_LOYALTY_MEMBER_ACCOUNT_STATUS. Help!

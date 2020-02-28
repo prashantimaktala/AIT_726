@@ -1,1 +1,0 @@
-@Jetblue Delay = Perfect time to learn Swift programming with @TeamTreehouse

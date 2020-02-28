@@ -1,1 +1,0 @@
-@united thanks. Just a program comment; the system assigned seats behind each other even though pairs were available. I changed it back.

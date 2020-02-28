@@ -33,10 +33,12 @@ import logging
 import numpy as np
 import pandas as pd
 from nltk import word_tokenize
-from nltk.stem.porter import PorterStemmer as Stemmer
+from nltk.stem.porter import PorterStemmer
+
 from keras import models
 from keras import layers
 
+stemmer = PorterStemmer()
 
 # use logging to save the results
 logging.basicConfig(filename='feedforwardResults.log', level=logging.INFO)
@@ -44,6 +46,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 # regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
 emoticons_re = r'(\:\w+\:|\<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[\:\;\=]|[\:\;\=B8][\-\^]?[3DOPp\@\$\*\\\)\(\/\|])(?=\s|[\!\.\?]|$)'
+
 
 def read_files(path):
     """
@@ -77,7 +80,7 @@ def tokenize(x, stem=False):
         else:
             tokens += word_tokenize(x)
     if stem:
-        tokens = [Stemmer.stem(t) for t in tokens]  # perform stemming
+        tokens = [stemmer.stem(t) for t in tokens]  # perform stemming
     return tokens
 
 
@@ -116,11 +119,12 @@ def preprocess(df, stem=False, vocab=None):
     if vocab is None:
         vocab = vocabulary(tokens)
 
-    tfidf = tf_idf(tokens, vocab)
+    output = tf_idf(tokens, vocab)
 
-    if not isinstance(tfidf, np.ndarray):
-        output = np.array(tfidf.values.tolist())
-    return output, vocab, tfidf
+    if not isinstance(output, np.ndarray):
+        output = np.array(output.values.tolist())
+
+    return output, vocab, output
 
 
 def train(features, labels, batch_size=10, learning_rate=0.0001):
@@ -130,7 +134,7 @@ def train(features, labels, batch_size=10, learning_rate=0.0001):
     network = models.Sequential()
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(layers.Dense( activation='sigmoid', input_shape=(len(features),)))
+    network.add(layers.Dense(activation='sigmoid', input_shape=(len(features),)))
 
     # Add fully connected layer with a sigmoid activation function
     network.add(layers.Dense(units=20, activation='sigmoid'))
@@ -148,10 +152,10 @@ def train(features, labels, batch_size=10, learning_rate=0.0001):
 
     # Train neural network
     model = network.fit(features,  # Features
-                          labels,  # Target vector
-                          epochs=3,  # Number of epochs
-                          verbose=1,  # Print description after each epoch
-                          batch_size=batch_size,)  # Number of observations per batch
+                        labels,  # Target vector
+                        epochs=3,  # Number of epochs
+                        verbose=1,  # Print description after each epoch
+                        batch_size=batch_size, )  # Number of observations per batch
 
 
 def run(stem=False):
@@ -166,6 +170,7 @@ def run(stem=False):
     x_test, _ = preprocess(df_test, stem=stem, vocab=vocab)
     y_test = df_test.label.values
 
+
 def main():
     """
     main - runs all the modules via run function
@@ -177,7 +182,6 @@ def main():
 
     logging.info('TFIDF without stemming')
     run(stem=False)
-
 
 
 if __name__ == '__main__':

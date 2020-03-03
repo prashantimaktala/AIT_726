@@ -94,21 +94,21 @@ def vocabulary(tokenized_tweets):
     return list(vocab)  # create complete list of tokens for all the tweets
 
 
-def tf_idf(collection, vocab):
+def tf_idf(collection, vocab, idf=None):
     """
           tf_idf - we have created term frequency - inverse document frequency matrix for all the documents
     """
     tf = [[doc.count(v) for v in vocab] for doc in collection]
     tf = np.array([[1 + np.log(count) if count > 0 else 0 for count in doc] for doc in tf])
-
-    N = len(collection)
-    df = [len([1 for doc in collection if w in doc]) for w in vocab]
-    idf = np.array([np.log(N / t) for t in df])
+    if idf is None:
+        N = len(collection)
+        df = [len([1 for doc in collection if w in doc]) for w in vocab]
+        idf = np.array([np.log(N / t) for t in df])
     output = tf * idf
     return output
 
 
-def preprocess(df, stem=False, vocab=None):
+def preprocess(df, stem=False, vocab=None, idf=None):
     """
     preprocess - calls appropriate tokenize to generate training and test data with required vocabulary
     """
@@ -119,7 +119,7 @@ def preprocess(df, stem=False, vocab=None):
     if vocab is None:
         vocab = vocabulary(tokens)
 
-    output = tf_idf(tokens, vocab)
+    output = tf_idf(tokens, vocab, idf)
 
     if not isinstance(output, np.ndarray):
         output = np.array(output.values.tolist())
@@ -147,27 +147,27 @@ def train(features, labels, batch_size=10, learning_rate=0.0001):
 
     # Compile neural network
     network.compile(loss='rms',  # Root Mean Square
-                    optimizer='rmsprop',  # Root Mean Square Propagation
+                    optimizer='adam',  # Root Mean Square Propagation
                     metrics=['accuracy'])  # Accuracy performance metric
 
     # Train neural network
     model = network.fit(features,  # Features
                         labels,  # Target vector
-                        epochs=3,  # Number of epochs
+                        epochs=5,  # Number of epochs
                         verbose=1,  # Print description after each epoch
                         batch_size=batch_size, )  # Number of observations per batch
-
+    return model
 
 def run(stem=False):
     """
     run - Execution of appropriate functions as per the required call
     """
     df_train = read_files('./data/tweet/train')
-    x_train, vocab, tf = preprocess(df_train, stem=stem)
+    x_train, vocab, idf = preprocess(df_train, stem=stem)
     y_train = df_train.label.values
     model = train(x_train, y_train)
     df_test = read_files('./data/tweet/test')
-    x_test, _ = preprocess(df_test, stem=stem, vocab=vocab)
+    x_test, _ = preprocess(df_test, stem=stem, vocab=vocab, idf=idf)
     y_test = df_test.label.values
 
 

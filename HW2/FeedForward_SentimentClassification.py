@@ -37,6 +37,7 @@ from nltk.stem.porter import PorterStemmer
 
 from keras import models
 from keras import layers
+from keras.optimizers import Adam
 
 stemmer = PorterStemmer()
 
@@ -127,7 +128,7 @@ def preprocess(df, stem=False, vocab=None, idf=None):
     return output, vocab, idf
 
 
-def train(features, labels, batch_size=10, learning_rate=0.0001):
+def train(features, labels, batch_size=10):
     # Set random seed
     np.random.seed(0)
     # Start neural network
@@ -146,8 +147,8 @@ def train(features, labels, batch_size=10, learning_rate=0.0001):
     network.add(layers.Dense(units=1, activation='sigmoid'))
 
     # Compile neural network
-    network.compile(loss='rms',  # Root Mean Square
-                    optimizer='adam',  # Root Mean Square Propagation
+    network.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
+                    loss='rms',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
     # Train neural network

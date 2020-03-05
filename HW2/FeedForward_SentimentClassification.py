@@ -105,7 +105,7 @@ def tf_idf(collection, vocab, idf=None):
         df = [len([1 for doc in collection if w in doc]) for w in vocab]
         idf = np.array([np.log(N / t) for t in df])
     output = tf * idf
-    return output
+    return output, idf
 
 
 def preprocess(df, stem=False, vocab=None, idf=None):
@@ -119,12 +119,12 @@ def preprocess(df, stem=False, vocab=None, idf=None):
     if vocab is None:
         vocab = vocabulary(tokens)
 
-    output = tf_idf(tokens, vocab, idf)
+    output, idf = tf_idf(tokens, vocab, idf)
 
     if not isinstance(output, np.ndarray):
         output = np.array(output.values.tolist())
 
-    return output, vocab, output
+    return output, vocab, idf
 
 
 def train(features, labels, batch_size=10, learning_rate=0.0001):

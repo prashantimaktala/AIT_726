@@ -152,26 +152,8 @@ def train(features, labels):
                     loss='mse',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
-    # Train neural network
-
     return network
 
-
-
-def evaluate(y_true, y_pred, true_label=1):
-    """
-        evaluate - calculates and prints accuracy and confusion matrix for predictions
-    """
-    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
-    false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
-    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
-    false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
-    logging.info('Confusion Matrix: ')
-    logging.info('\t\tTrue\tFalse')
-    logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
-    logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
-    logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
-    logging.info('')
 
 def run(stem=False):
     """
@@ -185,20 +167,17 @@ def run(stem=False):
     y_train = df_train.label.values
     network = train(x_train, y_train)
 
-    # model = network.fit(features=x_train,  # Features
-    #                     labels=y_train,  # Target vector
-    #                     epochs=1,  # Number of epochs
-    #                     # verbose=1,  # Print description after each epoch
-    #                     batch_size=10)  # Number of observations per batch
+    # Train neural network
     network.fit(x_train,  # Features
-                        y_train,  # Target vector
-                        epochs=1,  # Number of epochs
-                        # verbose=1,  # Print description after each epoch
-                        batch_size=10)  # Number of observations per batch
+                y_train,  # Target vector
+                epochs=1,  # Number of epochs
+                # verbose=1,  # Print description after each epoch
+                batch_size=10)  # Number of observations per batch
+
     network.summary()
     # y_pred = network.predict(x_test)
     y_test = df_test.label.values
-    print(network.evaluate(x_test, y_test))
+    logging.info(network.evaluate(x_test, y_test))
 
 def main():
     """

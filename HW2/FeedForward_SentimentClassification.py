@@ -35,8 +35,8 @@ import pandas as pd
 from nltk import word_tokenize
 from nltk.stem.porter import PorterStemmer
 
-from keras import models
-from keras import layers
+from keras.models import Sequential
+from keras.layers import Dense
 from keras.optimizers import Adam
 
 stemmer = PorterStemmer()
@@ -128,36 +128,50 @@ def preprocess(df, stem=False, vocab=None, idf=None):
     return output, vocab, idf
 
 
-def train(features, labels, batch_size=10):
+def train(features, labels):
     # Set random seed
     np.random.seed(0)
     # Start neural network
-    network = models.Sequential()
+    network = Sequential()
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(layers.Dense(activation='sigmoid', input_shape=(len(features),)))
+    # network.add(layers.Dense(activation='sigmoid', input_shape=(len(features))))
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(layers.Dense(units=20, activation='sigmoid'))
+    network.add(Dense(units=20, activation='sigmoid',input_dim=features.shape[1],
+                             kernel_initializer="random_uniform", bias_initializer="zeros"))
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(layers.Dense(units=20, activation='sigmoid'))
+    network.add(Dense(units=20, activation='sigmoid', kernel_initializer="random_uniform"))
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(layers.Dense(units=1, activation='sigmoid'))
+    network.add(Dense(units=1, activation='sigmoid'))
 
     # Compile neural network
     network.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
-                    loss='rms',  # Root Mean Square
+                    loss='mse',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
     # Train neural network
-    model = network.fit(features,  # Features
-                        labels,  # Target vector
-                        epochs=5,  # Number of epochs
-                        verbose=1,  # Print description after each epoch
-                        batch_size=batch_size, )  # Number of observations per batch
-    return model
+
+    return network
+
+
+
+def evaluate(y_true, y_pred, true_label=1):
+    """
+        evaluate - calculates and prints accuracy and confusion matrix for predictions
+    """
+    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
+    false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
+    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
+    false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
+    logging.info('Confusion Matrix: ')
+    logging.info('\t\tTrue\tFalse')
+    logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
+    logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
+    logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
+    logging.info('')
 
 def run(stem=False):
     """
@@ -165,12 +179,26 @@ def run(stem=False):
     """
     df_train = read_files('./data/tweet/train')
     x_train, vocab, idf = preprocess(df_train, stem=stem)
-    y_train = df_train.label.values
-    model = train(x_train, y_train)
     df_test = read_files('./data/tweet/test')
-    x_test, _ = preprocess(df_test, stem=stem, vocab=vocab, idf=idf)
-    y_test = df_test.label.values
+    x_test, _, _ = preprocess(df_test, stem=stem, vocab=vocab, idf=idf)
 
+    y_train = df_train.label.values
+    network = train(x_train, y_train)
+
+    # model = network.fit(features=x_train,  # Features
+    #                     labels=y_train,  # Target vector
+    #                     epochs=1,  # Number of epochs
+    #                     # verbose=1,  # Print description after each epoch
+    #                     batch_size=10)  # Number of observations per batch
+    model = network.fit(x_train,  # Features
+                        y_train,  # Target vector
+                        epochs=1,  # Number of epochs
+                        # verbose=1,  # Print description after each epoch
+                        batch_size=10)  # Number of observations per batch
+    model = model.summary()
+    y_pred = model.predict(x_test)
+    y_test = df_test.label.values
+    model.evaluate(y_test, y_pred)
 
 def main():
     """

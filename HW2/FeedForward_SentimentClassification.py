@@ -190,15 +190,15 @@ def run(stem=False):
     #                     epochs=1,  # Number of epochs
     #                     # verbose=1,  # Print description after each epoch
     #                     batch_size=10)  # Number of observations per batch
-    model = network.fit(x_train,  # Features
+    network.fit(x_train,  # Features
                         y_train,  # Target vector
                         epochs=1,  # Number of epochs
                         # verbose=1,  # Print description after each epoch
                         batch_size=10)  # Number of observations per batch
-    model = model.summary()
-    y_pred = model.predict(x_test)
+    network.summary()
+    # y_pred = network.predict(x_test)
     y_test = df_test.label.values
-    model.evaluate(y_test, y_pred)
+    print(network.evaluate(x_test, y_test))
 
 def main():
     """

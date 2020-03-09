@@ -29,6 +29,7 @@ ii. run
 import os
 import re
 import logging
+import random
 import numpy as np
 import pandas as pd
 from nltk import word_tokenize
@@ -43,7 +44,6 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers.embeddings import Embedding
-
 
 # use logging to save the results
 logging.basicConfig(filename='feedforwardResults.log', level=logging.INFO)
@@ -90,30 +90,28 @@ def preprocess(df):
     Tokenize each tweet and generate positive and negative bigrams
     """
     tokens = df.tweet.apply(tokenize)
-    bigrams = ngrams(tokens, 2)
-    x_pos_bigrams = np.array(list(bigrams))
-
-
+    sent_bigrams = tokens.apply(lambda tweet: [' '.join(bigram) for bigram in ngrams(tweet, 2)])
+    x_pos_bigrams = set()
+    for sent in sent_bigrams:
+        x_pos_bigrams.update(sent)
+    x_pos_bigrams = np.array([x.split() for x in x_pos_bigrams])
+    vocab = set()
+    for token in tokens:
+        vocab.update(token)
+    vocab = list(vocab)
     # randomly generate two negative samples
-    tokens = np.array(tokens)
     x_neg_bigrams = []
-    for _ in range (2):
+    for _ in range(2):
         for bigrams in x_pos_bigrams:
             t0 = bigrams[0]
             i, t1 = 0, None
+            random.shuffle(vocab)
             while t0 == t1 or t1 is None:
-                np.random.shuffle(tokens)
-                t1 = tokens[i]
+                t1 = vocab[i]
+                i = i + 1
             x_neg_bigrams.append([t0, t1])
+    x_neg_bigrams = np.array(x_neg_bigrams)
 
-
-
-    # np.random.shuffle(random1)
-    # bigrams1 = list(ngrams(random1, 2))
-    # random2 = np.array(tokens)
-    # np.random.shuffle(random2)
-    # bigrams2 = list(ngrams(random2, 2))
-    # x_neg_bigrams = np.concatenate((bigrams1, bigrams2), axis=0)
     # Add labels for positive and negative samples
     y_pos_bigrams = np.ones(x_pos_bigrams.shape[0])
     y_neg_bigrams = np.zeros(x_neg_bigrams.shape[0])
@@ -127,50 +125,47 @@ def preprocess(df):
     return x, y
 
 
-def keras_preprocess(x_train, maxlen=100):
+def keras_preprocess(x_train, tokenizer=None, maxlen=2):
     # creating bag of words using keras tokenizer
     seperator = ' '
-    x_train = [seperator.join(str(pair)) for pair in x_train]
+    x_train = [seperator.join(pair) for pair in x_train]
 
+    if tokenizer is None:
+        tokenizer = Tokenizer()
+        tokenizer.fit_on_texts(x_train)
 
-    t = Tokenizer()
-    t.fit_on_texts(x_train)
-
-    x_train = t.texts_to_sequences(x_train)
+    x_train = tokenizer.texts_to_sequences(x_train)
     # add padding
     x_train = pad_sequences(x_train, padding='post', maxlen=maxlen)
 
-    word_index = t.word_index
-    vocab_size = len(t.word_index) + 1
-
-    return x_train, vocab_size, word_index
+    return x_train, tokenizer
 
 
-def create_embedding(vocab_size, word_index):
-    embeddings_dictionary = dict()
-    # Using Global Vectors for Word Representation for word embeddings
-    file = open('./glove/glove.6B.100d.txt',
-                      encoding="utf8")
+# def create_embedding(vocab_size, word_index):
+#     embeddings_dictionary = dict()
+#     # Using Global Vectors for Word Representation for word embeddings
+#     file = open('./glove/glove.6B.100d.txt',
+#                       encoding="utf8")
+#
+#     # We use pretrained glove embeddings i.e the Glove in our case.
+#     for line in file:
+#         values = line.split()
+#         word = values[0]
+#         coefs = np.asarray(values[1:], dtype='float32')
+#         embeddings_dictionary[word] = coefs
+#     file.close()
+#
+#     embedding_matrix = np.zeros((vocab_size, 100))
+#     for word, i in word_index.items():
+#         embedding_vector = embeddings_dictionary.get(word)
+#         if embedding_vector is not None:
+#             # words not found in embedding dictionary will be all-zeros.
+#             embedding_matrix[i] = embedding_vector
+#     print(embedding_matrix)
+#     return embedding_matrix
 
-    # We use pretrained glove embeddings i.e the Glove in our case.
-    for line in file:
-        values = line.split()
-        word = values[0]
-        coefs = np.asarray(values[1:], dtype='float32')
-        embeddings_dictionary[word] = coefs
-    file.close()
 
-    embedding_matrix = np.zeros((vocab_size, 100))
-    for word, i in word_index.items():
-        embedding_vector = embeddings_dictionary.get(word)
-        if embedding_vector is not None:
-            # words not found in embedding dictionary will be all-zeros.
-            embedding_matrix[i] = embedding_vector
-    print(embedding_matrix)
-    return embedding_matrix
-
-
-def ffnn(embedding_matrix, x_train, y_train, vocab_size):
+def cross_validate(x_train, y_train, vocab_size):
     seed = 26
     np.random.seed(seed)
     # define 10-fold cross validation test on the training data only
@@ -186,7 +181,7 @@ def ffnn(embedding_matrix, x_train, y_train, vocab_size):
         # set optimizer Adam for the model with learning rate of 0.00001
         # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
         # initialize the input layer which contains the embeddings from previous steps
-        embedding_layer = Embedding(vocab_size, 100, weights=[embedding_matrix], input_length=100, trainable=False)
+        embedding_layer = Embedding(vocab_size, 100, input_length=2, trainable=False)
         model.add(embedding_layer)
         # flatten the input layer
         model.add(Flatten())
@@ -198,9 +193,10 @@ def ffnn(embedding_matrix, x_train, y_train, vocab_size):
         model.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
                       loss='mse',  # Root Mean Square
                       metrics=['accuracy'])  # Accuracy performance metric
+        print(model.summary())
         # Fit the model
-        model.fit(x_train,
-                  y_train,
+        model.fit(X_train,
+                  Y_train,
                   epochs=1,
                   batch_size=20,
                   verbose=1)
@@ -210,20 +206,60 @@ def ffnn(embedding_matrix, x_train, y_train, vocab_size):
         cvscores.append(scores[1] * 100)
     print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))
 
+
+def train(x_train, y_train, vocab_size):
+    model = Sequential()
+    # set optimizer Adam for the model with learning rate of 0.00001
+    # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+    # initialize the input layer which contains the embeddings from previous steps
+    embedding_layer = Embedding(vocab_size, 100, input_length=2, trainable=False)
+    model.add(embedding_layer)
+    # flatten the input layer
+    model.add(Flatten())
+    # The hidden layers with vector size of 20 and activation functon = "sigmoid"
+    model.add(Dense(20, activation='sigmoid'))
+    # the output layer with one output and activation function "sigmoid"
+    model.add(Dense(1, activation='sigmoid'))
+    # Compile model
+    model.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
+                  loss='mse',  # Root Mean Square
+                  metrics=['accuracy'])  # Accuracy performance metric
+    print(model.summary())
+    # Fit the model
+    model.fit(x_train,
+              y_train,
+              epochs=1,
+              batch_size=20,
+              verbose=1)
+    return model
+
+
+def evaluate(y_true, y_pred, true_label=1):
+    """
+     evaluate - calculates and prints accuracy
+     """
+    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
+    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
+    logging.info('Accuracy = %2.2f' % ((true_positives + true_negatives) * 100 / len(y_pred)))
+    logging.info('')
+
+
 def run():
     """
     run - Execution of appropriate functions as per the required call
     """
     df_train = read_files('./data/tweet/train/positive')
     x_train, y_train = preprocess(df_train)
-    x_train, vocab_size, word_index = keras_preprocess(x_train)
-    embedding_matrix = create_embedding(vocab_size, word_index)
-    model = ffnn(embedding_matrix, x_train, y_train, vocab_size)
-
+    x_train, tokenizer = keras_preprocess(x_train)
+    vocab_size = len(tokenizer.word_index) + 1
+    # embedding_matrix = create_embedding(vocab_size, word_index)
+    cross_validate(x_train, y_train, vocab_size)
+    model = train(x_train, y_train, vocab_size)
     df_test = read_files('./data/tweet/test/positive')
     x_test, y_test = preprocess(df_test)
-    # y_train = df_train.label.values
-    # model = train(x_train, y_train)
+    x_test, _ = keras_preprocess(x_test, tokenizer)
+    y_pred = model.predict(x_test)
+    evaluate(y_test, y_pred.flatten())
 
 
 def main():

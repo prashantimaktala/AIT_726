@@ -436,3 +436,84 @@ INFO:root:True	0		0
 INFO:root:False	1182		3000
 INFO:root:Accuracy = 71.74
 INFO:root:
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+INFO:root:AIT_726 Feed Forward Neural Network
+INFO:root:Authors: Yasas, Prashanti , Ashwini
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+INFO:root:Accuracy = 66.67
+INFO:root:

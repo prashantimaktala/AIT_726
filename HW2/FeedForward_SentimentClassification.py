@@ -138,7 +138,7 @@ def train(features, labels):
     # network.add(layers.Dense(activation='sigmoid', input_shape=(len(features))))
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(Dense(units=20, activation='relu',input_dim=features.shape[1]))
+    network.add(Dense(units=20, activation='relu', input_dim=features.shape[1]))
 
     # Add fully connected layer with a sigmoid activation function
     network.add(Dense(units=1, activation='sigmoid'))
@@ -189,6 +189,7 @@ def run(stem=False):
     y_pred = network.predict(x_test)
     y_test = df_test.label.values
     evaluate(y_test, y_pred.flatten())
+
 
 def main():
     """

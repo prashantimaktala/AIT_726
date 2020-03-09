@@ -155,6 +155,22 @@ def train(features, labels):
     return network
 
 
+def evaluate(y_true, y_pred, true_label=1):
+    """
+     evaluate - calculates and prints accuracy and confusion matrix for predictions
+     """
+    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
+    false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
+    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
+    false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
+    logging.info('Confusion Matrix: ')
+    logging.info('\t\tTrue\tFalse')
+    logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
+    logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
+    logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
+    logging.info('')
+
+
 def run(stem=False):
     """
     run - Execution of appropriate functions as per the required call
@@ -175,9 +191,9 @@ def run(stem=False):
                 batch_size=10)  # Number of observations per batch
 
     network.summary()
-    # y_pred = network.predict(x_test)
+    y_pred = network.predict(x_test)
     y_test = df_test.label.values
-    logging.info(network.evaluate(x_test, y_test))
+    evaluate(y_test, y_pred)
 
 def main():
     """

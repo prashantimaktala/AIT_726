@@ -93,14 +93,27 @@ def preprocess(df):
     bigrams = ngrams(tokens, 2)
     x_pos_bigrams = np.array(list(bigrams))
 
+
     # randomly generate two negative samples
-    random1 = np.array(tokens)
-    np.random.shuffle(random1)
-    bigrams1 = list(ngrams(random1, 2))
-    random2 = np.array(tokens)
-    np.random.shuffle(random2)
-    bigrams2 = list(ngrams(random2, 2))
-    x_neg_bigrams = np.concatenate((bigrams1, bigrams2), axis=0)
+    tokens = np.array(tokens)
+    x_neg_bigrams = []
+    for _ in range (2):
+        for bigrams in x_pos_bigrams:
+            t0 = bigrams[0]
+            i, t1 = 0, None
+            while t0 == t1 or t1 is None:
+                np.random.shuffle(tokens)
+                t1 = tokens[i]
+            x_neg_bigrams.append([t0, t1])
+
+
+
+    # np.random.shuffle(random1)
+    # bigrams1 = list(ngrams(random1, 2))
+    # random2 = np.array(tokens)
+    # np.random.shuffle(random2)
+    # bigrams2 = list(ngrams(random2, 2))
+    # x_neg_bigrams = np.concatenate((bigrams1, bigrams2), axis=0)
     # Add labels for positive and negative samples
     y_pos_bigrams = np.ones(x_pos_bigrams.shape[0])
     y_neg_bigrams = np.zeros(x_neg_bigrams.shape[0])
@@ -177,8 +190,6 @@ def ffnn(embedding_matrix, x_train, y_train, vocab_size):
         model.add(embedding_layer)
         # flatten the input layer
         model.add(Flatten())
-        # The hidden layers with vector size of 20 and activation functon = "sigmoid"
-        model.add(Dense(20, activation='sigmoid'))
         # The hidden layers with vector size of 20 and activation functon = "sigmoid"
         model.add(Dense(20, activation='sigmoid'))
         # the output layer with one output and activation function "sigmoid"

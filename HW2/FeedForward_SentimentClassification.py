@@ -138,17 +138,13 @@ def train(features, labels):
     # network.add(layers.Dense(activation='sigmoid', input_shape=(len(features))))
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(Dense(units=20, activation='sigmoid',input_dim=features.shape[1],
-                             kernel_initializer="random_uniform", bias_initializer="zeros"))
-
-    # Add fully connected layer with a sigmoid activation function
-    network.add(Dense(units=20, activation='sigmoid', kernel_initializer="random_uniform"))
+    network.add(Dense(units=20, activation='relu',input_dim=features.shape[1]))
 
     # Add fully connected layer with a sigmoid activation function
     network.add(Dense(units=1, activation='sigmoid'))
 
     # Compile neural network
-    network.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
+    network.compile(optimizer=Adam(lr=0.0001),  # Root Mean Square Propagation
                     loss='mse',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
@@ -167,7 +163,7 @@ def evaluate(y_true, y_pred, true_label=1):
     logging.info('\t\tTrue\tFalse')
     logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
     logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
-    logging.info('Accuracy = %2.2f' % (np.sum(y_true == y_pred) * 100 / len(y_pred)))
+    logging.info('Accuracy = %2.2f' % ((true_positives + true_negatives) * 100 / len(y_pred)))
     logging.info('')
 
 
@@ -186,14 +182,13 @@ def run(stem=False):
     # Train neural network
     network.fit(x_train,  # Features
                 y_train,  # Target vector
-                epochs=1,  # Number of epochs
-                # verbose=1,  # Print description after each epoch
+                epochs=20,  # Number of epochs
                 batch_size=10)  # Number of observations per batch
 
     network.summary()
     y_pred = network.predict(x_test)
     y_test = df_test.label.values
-    evaluate(y_test, y_pred)
+    evaluate(y_test, y_pred.flatten())
 
 def main():
     """

@@ -34,8 +34,6 @@ import numpy as np
 import pandas as pd
 from nltk import word_tokenize
 from nltk.util import ngrams
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import KFold
 
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -46,7 +44,7 @@ from keras.layers import Flatten
 from keras.layers.embeddings import Embedding
 
 # use logging to save the results
-logging.basicConfig(filename='feedforwardResults.log', level=logging.INFO)
+logging.basicConfig(filename='feedforward_LanguageModelling.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 
 # regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
@@ -118,10 +116,6 @@ def preprocess(df):
 
     x = np.concatenate((x_pos_bigrams, x_neg_bigrams), axis=0)
     y = np.concatenate((y_pos_bigrams, y_neg_bigrams), axis=0)
-
-    # create train and test data using train_test_split()
-    # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
-
     return x, y
 
 
@@ -141,73 +135,7 @@ def keras_preprocess(x_train, tokenizer=None, maxlen=2):
     return x_train, tokenizer
 
 
-# def create_embedding(vocab_size, word_index):
-#     embeddings_dictionary = dict()
-#     # Using Global Vectors for Word Representation for word embeddings
-#     file = open('./glove/glove.6B.100d.txt',
-#                       encoding="utf8")
-#
-#     # We use pretrained glove embeddings i.e the Glove in our case.
-#     for line in file:
-#         values = line.split()
-#         word = values[0]
-#         coefs = np.asarray(values[1:], dtype='float32')
-#         embeddings_dictionary[word] = coefs
-#     file.close()
-#
-#     embedding_matrix = np.zeros((vocab_size, 100))
-#     for word, i in word_index.items():
-#         embedding_vector = embeddings_dictionary.get(word)
-#         if embedding_vector is not None:
-#             # words not found in embedding dictionary will be all-zeros.
-#             embedding_matrix[i] = embedding_vector
-#     print(embedding_matrix)
-#     return embedding_matrix
-
-
-def cross_validate(x_train, y_train, vocab_size):
-    seed = 26
-    np.random.seed(seed)
-    # define 10-fold cross validation test on the training data only
-    kfold = KFold(n_splits=10)
-
-    cvscores = []
-    for train_index, test_index in kfold.split(x_train):
-        # split the data again for kfold validation
-        X_train, X_test = x_train[train_index], x_train[test_index]
-        Y_train, Y_test = y_train[train_index], y_train[test_index]
-        # create model of FFNN using Sequential()
-        model = Sequential()
-        # set optimizer Adam for the model with learning rate of 0.00001
-        # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
-        # initialize the input layer which contains the embeddings from previous steps
-        embedding_layer = Embedding(vocab_size, 100, input_length=2, trainable=False)
-        model.add(embedding_layer)
-        # flatten the input layer
-        model.add(Flatten())
-        # The hidden layers with vector size of 20 and activation functon = "sigmoid"
-        model.add(Dense(20, activation='sigmoid'))
-        # the output layer with one output and activation function "sigmoid"
-        model.add(Dense(1, activation='sigmoid'))
-        # Compile model
-        model.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
-                      loss='mse',  # Root Mean Square
-                      metrics=['accuracy'])  # Accuracy performance metric
-        print(model.summary())
-        # Fit the model
-        model.fit(X_train,
-                  Y_train,
-                  epochs=1,
-                  batch_size=20,
-                  verbose=1)
-        # evaluate the model
-        scores = model.evaluate(X_test, Y_test, verbose=1)
-        print("%s: %.2f%%" % (model.metrics_names[1], scores[1] * 100))
-        cvscores.append(scores[1] * 100)
-    print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))
-
-
-def train(x_train, y_train, vocab_size):
+def create_model(vocab_size):
     model = Sequential()
     # set optimizer Adam for the model with learning rate of 0.00001
     # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
@@ -225,12 +153,37 @@ def train(x_train, y_train, vocab_size):
                   loss='mse',  # Root Mean Square
                   metrics=['accuracy'])  # Accuracy performance metric
     print(model.summary())
-    # Fit the model
-    model.fit(x_train,
-              y_train,
-              epochs=1,
-              batch_size=20,
-              verbose=1)
+    return model
+
+
+def validation_train(x_train, y_train, vocab_size):
+    best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}
+    batch_size = 250
+    # Hyper-parameter Search (Grid Search)
+    for epochs in [10, 20, 30, 40]:
+        for lr in [0.0001, 0.00001]:
+            network = create_model(vocab_size)
+            # Train neural network
+            history = network.fit(x_train,  # Features
+                                  y_train,  # Target vector
+                                  epochs=epochs,  # Number of epochs
+                                  batch_size=batch_size,  # Number of observations per batch
+                                  validation_split=0.2)  # Validation split for validation
+            if 'val_accuracy' in history.history:
+                accuracy = history.history['val_accuracy'][-1]
+            elif 'val_acc' in history.history:
+                accuracy = history.history['val_acc'][-1]
+            else:
+                accuracy = 0.0
+            if accuracy > best_model['accuracy']:
+                best_model['model'] = network
+                best_model['accuracy'] = accuracy
+                best_model['hyperparams'] = {
+                    'epochs': epochs,
+                    'batch_size': batch_size,
+                    'lr': lr,
+                }
+    model = best_model['model']
     return model
 
 
@@ -252,14 +205,16 @@ def run():
     x_train, y_train = preprocess(df_train)
     x_train, tokenizer = keras_preprocess(x_train)
     vocab_size = len(tokenizer.word_index) + 1
-    # embedding_matrix = create_embedding(vocab_size, word_index)
-    cross_validate(x_train, y_train, vocab_size)
-    model = train(x_train, y_train, vocab_size)
+
     df_test = read_files('./data/tweet/test/positive')
     x_test, y_test = preprocess(df_test)
     x_test, _ = keras_preprocess(x_test, tokenizer)
-    y_pred = model.predict(x_test)
-    evaluate(y_test, y_pred.flatten())
+
+    best_model = validation_train(x_train, y_train, vocab_size)
+    best_model.summary()
+    y_pred = best_model.predict(x_test)
+    evaluate(y_test, y_pred.flatten() > 0.5)
+
 
 
 def main():

@@ -1,0 +1,21 @@
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+INFO:root:Best Parameters: {'accuracy': 0.058542411774396896, 'model': <keras.engine.sequential.Sequential object at 0x0000026904168978>, 'hyperparams': {'epochs': 40, 'batch_size': 250, 'lr': 0.0001}}
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	69		0
+INFO:root:False	1113		3000
+INFO:root:Accuracy = 73.39
+INFO:root:
+INFO:root:TFIDF without stemming
+INFO:root:Best Parameters: {'accuracy': 0.06690561771392822, 'model': <keras.engine.sequential.Sequential object at 0x0000026904576588>, 'hyperparams': {'epochs': 40, 'batch_size': 250, 'lr': 0.0001}}
+INFO:root:Confusion Matrix: 
+INFO:root:		True	False
+INFO:root:True	87		1
+INFO:root:False	1095		2999
+INFO:root:Accuracy = 73.79
+INFO:root:

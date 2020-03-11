@@ -42,7 +42,7 @@ from keras.optimizers import Adam
 stemmer = PorterStemmer()
 
 # use logging to save the results
-logging.basicConfig(filename='feedforwardResults.log', level=logging.INFO)
+logging.basicConfig(filename='feedforward_SentimentClassification.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 
 # regex from https://stackoverflow.com/questions/28077049/regex-matching-emoticons
@@ -128,7 +128,7 @@ def preprocess(df, stem=False, vocab=None, idf=None):
     return output, vocab, idf
 
 
-def train(features, labels):
+def create_model(features, lr):
     # Set random seed
     np.random.seed(0)
     # Start neural network
@@ -138,13 +138,13 @@ def train(features, labels):
     # network.add(layers.Dense(activation='sigmoid', input_shape=(len(features))))
 
     # Add fully connected layer with a sigmoid activation function
-    network.add(Dense(units=20, activation='relu', input_dim=features.shape[1]))
+    network.add(Dense(units=20, activation='sigmoid', input_dim=features.shape[1]))
 
     # Add fully connected layer with a sigmoid activation function
     network.add(Dense(units=1, activation='sigmoid'))
 
     # Compile neural network
-    network.compile(optimizer=Adam(lr=0.0001),  # Root Mean Square Propagation
+    network.compile(optimizer=Adam(lr=lr),  # Root Mean Square Propagation
                     loss='mse',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
@@ -152,19 +152,44 @@ def train(features, labels):
 
 
 def evaluate(y_true, y_pred, true_label=1):
+    """ evaluate - calculates and prints accuracy and confusion matrix for predictions
     """
-     evaluate - calculates and prints accuracy and confusion matrix for predictions
-     """
-    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
-    false_positives = sum(np.logical_and(y_true != true_label, y_pred == true_label))
-    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
-    false_negatives = sum(np.logical_and(y_true == true_label, y_pred != true_label))
+    true_positives = np.sum(np.logical_and(y_true == true_label, y_pred == true_label))
+    false_positives = np.sum(np.logical_and(y_true != true_label, y_pred == true_label))
+    true_negatives = np.sum(np.logical_and(y_true != true_label, y_pred != true_label))
+    false_negatives = np.sum(np.logical_and(y_true == true_label, y_pred != true_label))
     logging.info('Confusion Matrix: ')
     logging.info('\t\tTrue\tFalse')
     logging.info('True\t%d\t\t%d' % (true_positives, false_positives))
     logging.info('False\t%d\t\t%d' % (false_negatives, true_negatives))
     logging.info('Accuracy = %2.2f' % ((true_positives + true_negatives) * 100 / len(y_pred)))
     logging.info('')
+
+
+def validation_train(x_train, y_train):
+    best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}
+    batch_size = 250
+    lr = 0.0001
+    for epochs in [10, 20, 30, 40]:
+        network = create_model(x_train, lr=lr)
+        # Train neural network
+        history = network.fit(x_train,  # Features
+                              y_train,  # Target vector
+                              epochs=epochs,  # Number of epochs
+                              batch_size=batch_size,  # Number of observations per batch
+                              validation_split=0.2)  # Validation split for validation
+        accuracy = history.history['val_accuracy'][-1]  # saving the last accuracy value
+        if accuracy > best_model['accuracy']:
+            best_model['model'] = network
+            best_model['accuracy'] = accuracy
+            best_model['hyperparams'] = {
+                'epochs': epochs,
+                'batch_size': batch_size,
+                'lr': lr,
+            }
+    logging.info('Best Parameters: %s' % str(best_model))
+    model = best_model['model']
+    return model
 
 
 def run(stem=False):
@@ -175,20 +200,12 @@ def run(stem=False):
     x_train, vocab, idf = preprocess(df_train, stem=stem)
     df_test = read_files('./data/tweet/test')
     x_test, _, _ = preprocess(df_test, stem=stem, vocab=vocab, idf=idf)
-
     y_train = df_train.label.values
-    network = train(x_train, y_train)
-
-    # Train neural network
-    network.fit(x_train,  # Features
-                y_train,  # Target vector
-                epochs=20,  # Number of epochs
-                batch_size=10)  # Number of observations per batch
-
-    network.summary()
-    y_pred = network.predict(x_test)
     y_test = df_test.label.values
-    evaluate(y_test, y_pred.flatten())
+    best_model = validation_train(x_train, y_train)
+    best_model.summary()
+    y_pred = best_model.predict(x_test)
+    evaluate(y_test, y_pred.flatten() > 0.5)
 
 
 def main():

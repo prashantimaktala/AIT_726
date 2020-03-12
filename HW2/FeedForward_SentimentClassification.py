@@ -12,16 +12,18 @@ ii. run  default parameters: stem = false, binary = true
         b. Perform preprocessing
             - Build vocab
             - tokenize(stem/no stem)
-            - extract features
-                1.binary bow
-                2.freq bow
-        c. Train the model
-            -
+            - extracting features by performing if-idf
+        c. create a feed forward neural network ( we have FFNN with 2 layers with hidden vector size 20. We have
+           initialized the weights with random number. We have used mean squared error as our loss function and sigmoid
+           as our activation function )
+        d. Train the model ( we have verified the accuracy of the model using cross validated training data across
+           different hyper parameters. We have later returned the model with the best accuracy for testing purpose )
+
     2. Test the model
         a. Read the dataset
         b. Perform preprocessing
             - tokenize
-        c. Predict
+        c. Predict ( we have used the model with best accuracy for predicting the test dataset )
         d. Evaluate the model
             - Save confusion matrix and accuracy to log file
 

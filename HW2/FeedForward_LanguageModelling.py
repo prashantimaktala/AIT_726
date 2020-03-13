@@ -6,17 +6,20 @@ Command to run the file: python FeedForward_LanguageModelling.py
 
 Flow:
 i. main
-ii. run  default parameters: stem = false, binary = true
+ii. run
     1.Train the model
         a. Read the dataset
         b. Perform preprocessing
             - Build vocab
-            - tokenize(stem/no stem)
-            - Generate positive and negative bigrams along with positve and negative labels for them.
+            - tokenize
+            - Generate positive bigrams
+            - Generate random negative bigrams from postive bigrams
+            - Append positive and negative labels for bigrams
         c. Perform keras preprocessing
+            - Apply keras tokenizer
         c. create a feed forward neural network ( we have FFNN with 2 layers along with embedding layer and
-           hidden vector size 20. We have initialized the weights with random number. We have used mean squared error as our loss function and sigmoid
-           as our activation function )
+           hidden vector size 20. We have initialized the weights with random number. We have used mean squared error
+           as our loss function and sigmoid as our activation function )
         d. Train the model ( we have verified the accuracy of the model using cross validated training data across
            different hyper parameters. We have later returned the model with the best accuracy for testing purpose )
 
@@ -26,7 +29,7 @@ ii. run  default parameters: stem = false, binary = true
             - tokenize
         c. Predict ( we have used the model with best accuracy for predicting the test dataset )
         d. Evaluate the model
-            - Save confusion matrix and accuracy to log file
+            - Save accuracy to log file
 
 """
 
@@ -143,9 +146,11 @@ def keras_preprocess(x_train, tokenizer=None, maxlen=2):
 
 
 def create_model(vocab_size):
-    """ create_model - creates feed forward neural network with 2 layers along with embedding layer hidden and
-        vector size 20. create_model initializes the weights with random number.
-        create_model uses mean squared error as our loss function and sigmoid as our activation function """
+    """ create_model -
+     - creates feed forward neural network with 2 layers along with embedding layer hidden and vector size 20.
+     - initializes the weights with random number.
+     - uses mean squared error as our loss function and sigmoid as our activation function
+     """
     model = Sequential()
     # set optimizer Adam for the model with learning rate of 0.00001
     # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)

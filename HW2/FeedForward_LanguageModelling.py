@@ -75,8 +75,7 @@ def read_files(path):
 def tokenize(x):
     """
     tokenize function takes care of handling removal of html tags, conversion of capitalized words to lowercase except
-    for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize
-    as well as tokens with stemming using PotterStemmer.
+    for all capital words, handling of emoticons. we have created streams of tokens
     """
     x = re.sub(r'(?:<[^>]+>)', '', x)  # substitute html tags
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)  # group 0 refers to A-Z, lowercase group 0

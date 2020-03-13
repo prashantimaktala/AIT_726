@@ -131,16 +131,16 @@ def preprocess(df, stem=False, vocab=None, idf=None):
 
 
 def create_model(features, lr):
+    """ create_model - creates feed forward neural network with 2 layers with hidden vector size 20.
+     create_model initializes the weights with random number.
+     create_model uses mean squared error as our loss function and sigmoid as our activation function """
     # Set random seed
     np.random.seed(0)
     # Start neural network
     network = Sequential()
 
     # Add fully connected layer with a sigmoid activation function
-    # network.add(layers.Dense(activation='sigmoid', input_shape=(len(features))))
-
-    # Add fully connected layer with a sigmoid activation function
-    network.add(Dense(units=20, activation='sigmoid', input_dim=features.shape[1]))
+    network.add(Dense(units=20, activation='sigmoid', kernel_initializer='random_uniform', input_dim=features.shape[1]))
 
     # Add fully connected layer with a sigmoid activation function
     network.add(Dense(units=1, activation='sigmoid'))
@@ -169,6 +169,10 @@ def evaluate(y_true, y_pred, true_label=1):
 
 
 def validation_train(x_train, y_train):
+    """
+    validation_train - verifies the accuracy of the model using cross validated training data across
+           different hyper parameters. validation_train returns the model with the best accuracy for testing purpose
+    """
     best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}
     batch_size = 250
     lr = 0.0001

@@ -6,13 +6,13 @@ Command to run the file: python FeedForward_SentimentClassification.py
 
 Flow:
 i. main
-ii. run  default parameters: stem = false, binary = true
+ii. run  default parameters: stem = false
     1.Train the model
         a. Read the dataset
         b. Perform preprocessing
             - Build vocab
             - tokenize(stem/no stem)
-            - extracting features by performing if-idf
+            - extracting features by performing tf-idf
         c. create a feed forward neural network ( we have FFNN with 2 layers with hidden vector size 20. We have
            initialized the weights with random number. We have used mean squared error as our loss function and sigmoid
            as our activation function )
@@ -131,9 +131,11 @@ def preprocess(df, stem=False, vocab=None, idf=None):
 
 
 def create_model(features, lr):
-    """ create_model - creates feed forward neural network with 2 layers with hidden vector size 20.
-     create_model initializes the weights with random number.
-     create_model uses mean squared error as our loss function and sigmoid as our activation function """
+    """ create_model
+     - creates feed forward neural network with 2 layers with hidden vector size 20.
+     - initializes the weights with random number.
+     - uses mean squared error as our loss function and sigmoid as our activation function
+     """
     # Set random seed
     np.random.seed(0)
     # Start neural network
@@ -146,7 +148,7 @@ def create_model(features, lr):
     network.add(Dense(units=1, activation='sigmoid'))
 
     # Compile neural network
-    network.compile(optimizer=Adam(lr=lr),  # Root Mean Square Propagation
+    network.compile(optimizer=Adam(lr=lr),  # lr = 0.0001
                     loss='mse',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
@@ -211,7 +213,7 @@ def run(stem=False):
     best_model = validation_train(x_train, y_train)
     best_model.summary()
     y_pred = best_model.predict(x_test)
-    evaluate(y_test, y_pred.flatten() > 0.5)
+    evaluate(y_test, y_pred.flatten() > 0.5)  # Converting probabilities to 0 and 1
 
 
 def main():

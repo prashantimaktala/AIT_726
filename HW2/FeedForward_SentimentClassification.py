@@ -6,22 +6,24 @@ Command to run the file: python FeedForward_SentimentClassification.py
 
 Flow:
 i. main
-ii. run  default parameters: stem = false, binary = true
+ii. run  default parameters: stem = false
     1.Train the model
         a. Read the dataset
         b. Perform preprocessing
             - Build vocab
             - tokenize(stem/no stem)
-            - extract features
-                1.binary bow
-                2.freq bow
-        c. Train the model
-            -
+            - extracting features by performing tf-idf
+        c. create a feed forward neural network ( we have FFNN with 2 layers with hidden vector size 20. We have
+           initialized the weights with random number. We have used mean squared error as our loss function and sigmoid
+           as our activation function )
+        d. Train the model ( we have verified the accuracy of the model using cross validated training data across
+           different hyper parameters. We have later returned the model with the best accuracy for testing purpose )
+
     2. Test the model
         a. Read the dataset
         b. Perform preprocessing
             - tokenize
-        c. Predict
+        c. Predict ( we have used the model with best accuracy for predicting the test dataset )
         d. Evaluate the model
             - Save confusion matrix and accuracy to log file
 
@@ -129,22 +131,24 @@ def preprocess(df, stem=False, vocab=None, idf=None):
 
 
 def create_model(features, lr):
+    """ create_model
+     - creates feed forward neural network with 2 layers with hidden vector size 20.
+     - initializes the weights with random number.
+     - uses mean squared error as our loss function and sigmoid as our activation function
+     """
     # Set random seed
     np.random.seed(0)
     # Start neural network
     network = Sequential()
 
     # Add fully connected layer with a sigmoid activation function
-    # network.add(layers.Dense(activation='sigmoid', input_shape=(len(features))))
-
-    # Add fully connected layer with a sigmoid activation function
-    network.add(Dense(units=20, activation='sigmoid', input_dim=features.shape[1]))
+    network.add(Dense(units=20, activation='sigmoid', kernel_initializer='random_uniform', input_dim=features.shape[1]))
 
     # Add fully connected layer with a sigmoid activation function
     network.add(Dense(units=1, activation='sigmoid'))
 
     # Compile neural network
-    network.compile(optimizer=Adam(lr=lr),  # Root Mean Square Propagation
+    network.compile(optimizer=Adam(lr=lr),  # lr = 0.0001
                     loss='mse',  # Root Mean Square
                     metrics=['accuracy'])  # Accuracy performance metric
 
@@ -167,6 +171,10 @@ def evaluate(y_true, y_pred, true_label=1):
 
 
 def validation_train(x_train, y_train):
+    """
+    validation_train - verifies the accuracy of the model using cross validated training data across
+           different hyper parameters. validation_train returns the model with the best accuracy for testing purpose
+    """
     best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}
     batch_size = 250
     lr = 0.0001
@@ -205,7 +213,7 @@ def run(stem=False):
     best_model = validation_train(x_train, y_train)
     best_model.summary()
     y_pred = best_model.predict(x_test)
-    evaluate(y_test, y_pred.flatten() > 0.5)
+    evaluate(y_test, y_pred.flatten() > 0.5)  # Converting probabilities to 0 and 1
 
 
 def main():

@@ -2,27 +2,34 @@
 AIT726 HW 2 Due 3/6/2020
 Sentiment classification using Feed Forward Neural Network on dataset of 4181 training and 4182 testing tweets.
 Authors: Yasas, Prashanti, Ashwini
-Command to run the file: python FeedForward_SentimentClassification.py
+Command to run the file: python FeedForward_LanguageModelling.py
 
 Flow:
 i. main
 ii. run
-        a. Read the  train positive tweets
+    1.Train the model
+        a. Read the dataset
         b. Perform preprocessing
             - Build vocab
-            - tokenize(stem/no stem)
-            - extract features
-                1.binary bow
-                2.freq bow
-        c. Train the model
-            -
+            - tokenize
+            - Generate positive bigrams
+            - Generate random negative bigrams from postive bigrams
+            - Append positive and negative labels for bigrams
+        c. Perform keras preprocessing
+            - Apply keras tokenizer
+        c. create a feed forward neural network ( we have FFNN with 2 layers along with embedding layer and
+           hidden vector size 20. We have initialized the weights with random number. We have used mean squared error
+           as our loss function and sigmoid as our activation function )
+        d. Train the model ( we have verified the accuracy of the model using cross validated training data across
+           different hyper parameters. We have later returned the model with the best accuracy for testing purpose )
+
     2. Test the model
         a. Read the dataset
         b. Perform preprocessing
             - tokenize
-        c. Predict
+        c. Predict ( we have used the model with best accuracy for predicting the test dataset )
         d. Evaluate the model
-            - Save confusion matrix and accuracy to log file
+            - Save accuracy to log file
 
 """
 
@@ -54,7 +61,7 @@ emoticons_re = r'(\:\w+\:|\<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[\:\;\=]|[\:\;\=B8][\
 def read_files(path):
     """
     read_files - helps to navigate through the files in the folder structure, read the files and convert them to
-    dataframe which consists of tweet and labels.
+    dataframe which consists of tweet
     """
     corpus = []
     for file in os.listdir(path):
@@ -68,8 +75,7 @@ def read_files(path):
 def tokenize(x):
     """
     tokenize function takes care of handling removal of html tags, conversion of capitalized words to lowercase except
-    for all capital words, handling of emoticons. we have created streams of tokens without stemming using word_tokenize
-    as well as tokens with stemming using PotterStemmer.
+    for all capital words, handling of emoticons. we have created streams of tokens
     """
     x = re.sub(r'(?:<[^>]+>)', '', x)  # substitute html tags
     x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)  # group 0 refers to A-Z, lowercase group 0
@@ -85,7 +91,8 @@ def tokenize(x):
 
 def preprocess(df):
     """
-    Tokenize each tweet and generate positive and negative bigrams
+    Tokenize each tweet and generate positive and negative bigrams.
+    Labels are appended to the positive and negative bigrams
     """
     tokens = df.tweet.apply(tokenize)
     sent_bigrams = tokens.apply(lambda tweet: [' '.join(bigram) for bigram in ngrams(tweet, 2)])
@@ -120,7 +127,9 @@ def preprocess(df):
 
 
 def keras_preprocess(x_train, tokenizer=None, maxlen=2):
-    # creating bag of words using keras tokenizer
+    """
+    creating bag of words using keras tokenizer
+    """
     seperator = ' '
     x_train = [seperator.join(pair) for pair in x_train]
 
@@ -136,6 +145,11 @@ def keras_preprocess(x_train, tokenizer=None, maxlen=2):
 
 
 def create_model(vocab_size):
+    """ create_model -
+     - creates feed forward neural network with 2 layers along with embedding layer hidden and vector size 20.
+     - initializes the weights with random number.
+     - uses mean squared error as our loss function and sigmoid as our activation function
+     """
     model = Sequential()
     # set optimizer Adam for the model with learning rate of 0.00001
     # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
@@ -145,7 +159,7 @@ def create_model(vocab_size):
     # flatten the input layer
     model.add(Flatten())
     # The hidden layers with vector size of 20 and activation functon = "sigmoid"
-    model.add(Dense(20, activation='sigmoid'))
+    model.add(Dense(20, activation='sigmoid', kernel_initializer='random_uniform'))
     # the output layer with one output and activation function "sigmoid"
     model.add(Dense(1, activation='sigmoid'))
     # Compile model
@@ -157,6 +171,10 @@ def create_model(vocab_size):
 
 
 def validation_train(x_train, y_train, vocab_size):
+    """
+    validation_train - verifies the accuracy of the model using cross validated training data across
+           different hyper parameters. validation_train returns the model with the best accuracy for testing purpose
+    """
     best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}
     batch_size = 250
     # Hyper-parameter Search (Grid Search)

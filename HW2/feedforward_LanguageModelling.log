@@ -1,11 +1,6 @@
 INFO:root:AIT_726 Feed Forward Neural Network
 INFO:root:Authors: Yasas, Prashanti , Ashwini
-WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\resource_variable_ops.py:435: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
-Instructions for updating:
-Colocations handled automatically by placer.
-WARNING:tensorflow:From C:\Users\prash\Anaconda3\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
-Instructions for updating:
-Use tf.cast instead.
-INFO:root:Best Parameters: {'accuracy': 1.0, 'model': <keras.engine.sequential.Sequential object at 0x000001A94C45DEB8>, 'hyperparams': {'epochs': 10, 'batch_size': 250, 'lr': 0.0001}}
+WARNING:tensorflow:From C:\Users\aravk\Anaconda3\lib\site-packages\keras\backend\tensorflow_backend.py:422: The name tf.global_variables is deprecated. Please use tf.compat.v1.global_variables instead.
+
 INFO:root:Accuracy = 66.67
 INFO:root:

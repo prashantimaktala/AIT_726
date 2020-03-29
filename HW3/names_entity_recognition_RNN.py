@@ -114,7 +114,7 @@ def pad_tag(df, sentences, max_length_sentence):
         pad_length = max_length_sentence - len(sentence.split())
         file1.write("0 <pad> \n" * pad_length + ('\n'))
 
-        file1.close()
+        file1.close() 
         start_index = start_index + len(sentence)
 
 

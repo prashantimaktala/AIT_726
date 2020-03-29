@@ -102,20 +102,20 @@ def get_sentences(path):
             label = label + (line.split(" ")[3]) + " "
 
     max_length_sentence = len(max(sentences, key=len))
-    return sentences[1:], labels[1:], max_length_sentence
+    return sentences, labels, max_length_sentence
 
-# def pad_tag(df, sentences, max_length_sentence, path):
-#     start_index = 0
-#     for sentence in sentences:
-#         # print(df[start_index:start_index+len(sentence.split())])
-#         df[start_index:start_index + len(sentence.split())].to_csv(r'./Data/conll2003/train.txt,
-#                                                                    header=None, index=None, sep=' ', mode='a')
-#         file1 = open("gdrive/My Drive/Colab Notebooks/train2.txt", "a")
-#         pad_length = max_length_sentence - len(sentence.split())
-#         file1.write("0 <pad> \n" * pad_length + ('\n'))
-#
-#         file1.close()
-#         start_index = start_index + len(sentence)
+def pad_tag(df, sentences, max_length_sentence):
+    start_index = 0
+    for sentence in sentences:
+        # print(df[start_index:start_index+len(sentence.split())])
+        df[start_index:start_index + len(sentence.split())].to_csv(r'./Data/conll2003/train2.txt',
+                                                                   header=None, index=None, sep=' ', mode='a')
+        file1 = open("./Data/conll2003/train2.txt", "a")
+        pad_length = max_length_sentence - len(sentence.split())
+        file1.write("0 <pad> \n" * pad_length + ('\n'))
+
+        file1.close()
+        start_index = start_index + len(sentence)
 
 
 def preprocess(df):
@@ -252,7 +252,7 @@ def run():
     """
     df_train = read_files('./Data/conll2003/train.txt')
     sentenses, labels, max_length_sentence = get_sentences('./Data/conll2003/train.txt')
-    # pad_tag(df_train, sentenses, max_length_sentence, './Data/conll2003/train.txt')
+    pad_tag(df_train, sentenses, max_length_sentence)
 
     # x_train, y_train = preprocess(df_train)
     # x_train, tokenizer = keras_preprocess(x_train)

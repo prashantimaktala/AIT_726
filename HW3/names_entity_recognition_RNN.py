@@ -47,7 +47,10 @@ from nltk.util import ngrams
 # logging.basicConfig(filename='names_entity_recognition_RNN.log', level=logging.INFO)
 # logging.getLogger().addHandler(logging.StreamHandler())
 
+from gensim import models
 
+embedding_vector = models.KeyedVectors.load_word2vec_format(
+    './Data/conll2003/GoogleNews-vectors-negative300.bin', binary=True)
 
 
 def read_files(path):

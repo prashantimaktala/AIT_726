@@ -42,13 +42,6 @@ import pandas as pd
 from nltk import word_tokenize
 from nltk.util import ngrams
 
-# from keras.preprocessing.text import Tokenizer
-# from keras.preprocessing.sequence import pad_sequences
-# from keras.optimizers import Adam
-# from keras.models import Sequential
-# from keras.layers import Dense
-# from keras.layers import Flatten
-# from keras.layers.embeddings import Embedding
 
 # use logging to save the results
 # logging.basicConfig(filename='names_entity_recognition_RNN.log', level=logging.INFO)
@@ -68,6 +61,7 @@ def read_files(path):
     df = df.rename(columns={"-DOCSTART-": "words", "O": "entity"})
     # print(df.head())
     df["words"] = [word.lower() if not word.isupper() else word for word in df["words"]]
+    print(df.head(30))
     return df
 
 def sentence_tokenize(x):
@@ -101,8 +95,8 @@ def get_sentences(path):
             sentence = sentence + (line.split(" ", 1)[0]) + " "
             label = label + (line.split(" ")[3]) + " "
 
-    max_length_sentence = len(max(sentences, key=len))
-    return sentences, labels, max_length_sentence
+    # max_length_sentence = len(max(sentences, key=len))
+    return sentences[1:], labels[1:]
 
 def pad_tag(df, sentences, max_length_sentence):
     start_index = 0
@@ -114,8 +108,8 @@ def pad_tag(df, sentences, max_length_sentence):
         pad_length = max_length_sentence - len(sentence.split())
         file1.write("0 <pad> \n" * pad_length + ('\n'))
 
-        file1.close() 
-        start_index = start_index + len(sentence)
+        file1.close()
+        start_index = start_index + len(sentence.split())
 
 
 def preprocess(df):
@@ -251,8 +245,10 @@ def run():
     run - Execution of appropriate functions as per the required call
     """
     df_train = read_files('./Data/conll2003/train.txt')
-    sentenses, labels, max_length_sentence = get_sentences('./Data/conll2003/train.txt')
-    pad_tag(df_train, sentenses, max_length_sentence)
+    sentences, labels = get_sentences('./Data/conll2003/train.txt')
+
+    max_length_sentence = len(max(sentences, key=len))
+    pad_tag(df_train, sentences, max_length_sentence)
 
     # x_train, y_train = preprocess(df_train)
     # x_train, tokenizer = keras_preprocess(x_train)

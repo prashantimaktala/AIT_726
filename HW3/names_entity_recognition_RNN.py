@@ -49,8 +49,8 @@ from nltk.util import ngrams
 
 from gensim import models
 
-embedding_vector = models.KeyedVectors.load_word2vec_format(
-    './Data/conll2003/GoogleNews-vectors-negative300.bin', binary=True)
+# embedding_vector = models.KeyedVectors.load_word2vec_format(
+#     './Data/conll2003/GoogleNews-vectors-negative300.bin', binary=True)
 
 
 def read_files(path):
@@ -64,7 +64,6 @@ def read_files(path):
     df = df.rename(columns={"-DOCSTART-": "words", "O": "entity"})
     # print(df.head())
     df["words"] = [word.lower() if not word.isupper() else word for word in df["words"]]
-    print(df.head(30))
     return df
 
 def sentence_tokenize(x):
@@ -113,6 +112,24 @@ def pad_tag(df, sentences, max_length_sentence):
 
         file1.close()
         start_index = start_index + len(sentence.split())
+
+
+def get_sentences_train2(file_name):
+    sentences = []
+    labels = []
+    sentence = ""
+    label = ""
+    for line in open(file_name,"r").readlines():
+        if len(line.strip()) == 0 :
+            sentences.append(sentence)
+            sentence = ""
+            labels.append(label.replace("\n", ""))
+            label = ""
+        else:
+            sentence = sentence + (line.split(" ",1)[0]) + " "
+            label = label + (line.split(" ")[1]) + " "
+            # label = label + (line.split(" ")[3]) +   " "
+    return sentences,labels
 
 
 def preprocess(df):
@@ -252,6 +269,22 @@ def run():
 
     max_length_sentence = len(max(sentences, key=len))
     pad_tag(df_train, sentences, max_length_sentence)
+    x, y = get_sentences_train2('./Data/conll2003/train2.txt')
+
+    word_to_ix = {}
+    for sent in x:
+        for word in sent.split():
+            if word not in word_to_ix:
+                word_to_ix[word] = len(word_to_ix)
+    print(word_to_ix)
+    tag_to_ix = {}
+
+    for sent in y:
+        for word in sent.split():
+
+            if word not in tag_to_ix:
+                tag_to_ix[word] = len(tag_to_ix)
+    print(tag_to_ix)
 
     # x_train, y_train = preprocess(df_train)
     # x_train, tokenizer = keras_preprocess(x_train)

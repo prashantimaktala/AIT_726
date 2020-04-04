@@ -46,8 +46,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-
-
 # use logging to save the results
 # logging.basicConfig(filename='names_entity_recognition_RNN.log', level=logging.INFO)
 # logging.getLogger().addHandler(logging.StreamHandler())
@@ -71,22 +69,6 @@ def read_files(path):
     # print(df.head())
     df["words"] = [word.lower() if not word.isupper() else word for word in df["words"]]
     return df
-
-
-def sentence_tokenize(x):
-    """
-    tokenize function takes care of handling removal of conversion of capitalized words to lowercase except
-    for all capital words
-    """
-
-    x = re.sub('([A-Z][a-z]+)', lambda t: t.group(0).lower(), x)  # group 0 refers to A-Z, lowercase group 0
-    tokens = []
-    for t in emoticon_tokens:
-        if re.match(emoticons_re, t):
-            tokens.append(t)  # append emoticons without word tokenize
-        else:
-            tokens += word_tokenize(x)
-    return tokens
 
 
 def get_sentences(path):
@@ -140,133 +122,6 @@ def get_sentences_train2(file_name):
     return sentences, labels
 
 
-def preprocess(df):
-    """
-    Tokenize each tweet and generate positive and negative bigrams.
-    Labels are appended to the positive and negative bigrams
-    """
-
-    tokens = df.DOCSTART.apply(tokenize)
-    sent_bigrams = tokens.apply(lambda tweet: [' '.join(bigram) for bigram in ngrams(tweet, 2)])
-    x_pos_bigrams = set()
-    for sent in sent_bigrams:
-        x_pos_bigrams.update(sent)
-    x_pos_bigrams = np.array([x.split() for x in x_pos_bigrams])
-    vocab = set()
-    for token in tokens:
-        vocab.update(token)
-    vocab = list(vocab)
-    # randomly generate two negative samples
-    x_neg_bigrams = []
-    for _ in range(2):
-        for bigrams in x_pos_bigrams:
-            t0 = bigrams[0]
-            i, t1 = 0, None
-            random.shuffle(vocab)
-            while t0 == t1 or t1 is None:
-                t1 = vocab[i]
-                i = i + 1
-            x_neg_bigrams.append([t0, t1])
-    x_neg_bigrams = np.array(x_neg_bigrams)
-
-    # Add labels for positive and negative samples
-    y_pos_bigrams = np.ones(x_pos_bigrams.shape[0])
-    y_neg_bigrams = np.zeros(x_neg_bigrams.shape[0])
-
-    x = np.concatenate((x_pos_bigrams, x_neg_bigrams), axis=0)
-    y = np.concatenate((y_pos_bigrams, y_neg_bigrams), axis=0)
-    return x, y
-
-
-def keras_preprocess(x_train, tokenizer=None, maxlen=2):
-    """
-    creating bag of words using keras tokenizer
-    """
-    seperator = ' '
-    x_train = [seperator.join(pair) for pair in x_train]
-
-    if tokenizer is None:
-        tokenizer = Tokenizer()
-        tokenizer.fit_on_texts(x_train)
-
-    x_train = tokenizer.texts_to_sequences(x_train)
-    # add padding
-    x_train = pad_sequences(x_train, padding='post', maxlen=maxlen)
-
-    return x_train, tokenizer
-
-
-def create_model(vocab_size):
-    """ create_model -
-     - creates feed forward neural network with 2 layers along with embedding layer hidden and vector size 20.
-     - initializes the weights with random number.
-     - uses mean squared error as our loss function and sigmoid as our activation function
-     """
-    model = Sequential()
-    # set optimizer Adam for the model with learning rate of 0.00001
-    # optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
-    # initialize the input layer which contains the embeddings from previous steps
-    embedding_layer = Embedding(vocab_size, 100, input_length=2, trainable=False)
-    model.add(embedding_layer)
-    # flatten the input layer
-    model.add(Flatten())
-    # The hidden layers with vector size of 20 and activation functon = "sigmoid"
-    model.add(Dense(20, activation='sigmoid', kernel_initializer='random_uniform'))
-    # the output layer with one output and activation function "sigmoid"
-    model.add(Dense(1, activation='sigmoid'))
-    # Compile model
-    model.compile(optimizer=Adam(lr=0.00001),  # Root Mean Square Propagation
-                  loss='mse',  # Root Mean Square
-                  metrics=['accuracy'])  # Accuracy performance metric
-    print(model.summary())
-    return model
-
-
-def validation_train(x_train, y_train, vocab_size):
-    """
-    validation_train - verifies the accuracy of the model using cross validated training data across
-           different hyper parameters. validation_train returns the model with the best accuracy for testing purpose
-    """
-    best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}
-    batch_size = 250
-    # Hyper-parameter Search (Grid Search)
-    for epochs in [10, 20, 30, 40]:
-        for lr in [0.0001, 0.00001]:
-            network = create_model(vocab_size)
-            # Train neural network
-            history = network.fit(x_train,  # Features
-                                  y_train,  # Target vector
-                                  epochs=epochs,  # Number of epochs
-                                  batch_size=batch_size,  # Number of observations per batch
-                                  validation_split=0.2)  # Validation split for validation
-            if 'val_accuracy' in history.history:
-                accuracy = history.history['val_accuracy'][-1]
-            elif 'val_acc' in history.history:
-                accuracy = history.history['val_acc'][-1]
-            else:
-                accuracy = 0.0
-            if accuracy > best_model['accuracy']:
-                best_model['model'] = network
-                best_model['accuracy'] = accuracy
-                best_model['hyperparams'] = {
-                    'epochs': epochs,
-                    'batch_size': batch_size,
-                    'lr': lr,
-                }
-    model = best_model['model']
-    return model
-
-
-def evaluate(y_true, y_pred, true_label=1):
-    """
-     evaluate - calculates and prints accuracy
-     """
-    true_positives = sum(np.logical_and(y_true == true_label, y_pred == true_label))
-    true_negatives = sum(np.logical_and(y_true != true_label, y_pred != true_label))
-    logging.info('Accuracy = %2.2f' % ((true_positives + true_negatives) * 100 / len(y_pred)))
-    logging.info('')
-
-
 def get_tag(x, y):
     word_to_ix = {}
     for sent in x:
@@ -288,7 +143,8 @@ def prepare_sequence(seq, to_ix):
     idxs = [to_ix[w] for w in seq]
     return torch.tensor(idxs, dtype=torch.long)
 
-def get_label(sequence,tag_to_ix):
+
+def get_label(sequence, tag_to_ix):
     label = []
     # idx2lbl = {y:x for x,y in tag_to_ix.iteritems()}
     idx2lbl = dict([(value, key) for key, value in tag_to_ix.items()])
@@ -310,8 +166,8 @@ def run():
     # training_data = x, y
     tag_to_ix, word_to_ix = get_tag(x, y)
 
-    #print(tag_to_ix)
-    #print(word_to_ix)
+    print(tag_to_ix)
+    print(word_to_ix)
 
     torch.manual_seed(1)
     EMBEDDING_DIM = 300
@@ -322,19 +178,6 @@ def run():
         training_data.append(record)
     print(training_data)
     print(len(training_data))
-
-    # x_train, y_train = preprocess(df_train)
-    # x_train, tokenizer = keras_preprocess(x_train)
-    # vocab_size = len(tokenizer.word_index) + 1
-    #
-    # df_test = read_files('./data/tweet/test/positive')
-    # x_test, y_test = preprocess(df_test)
-    # x_test, _ = keras_preprocess(x_test, tokenizer)
-    #
-    # best_model = validation_train(x_train, y_train, vocab_size)
-    # best_model.summary()
-    # y_pred = best_model.predict(x_test)
-    # evaluate(y_test, y_pred.flatten() > 0.5)
 
 
 def main():

@@ -288,6 +288,14 @@ def prepare_sequence(seq, to_ix):
     idxs = [to_ix[w] for w in seq]
     return torch.tensor(idxs, dtype=torch.long)
 
+def get_label(sequence,tag_to_ix):
+    label = []
+    # idx2lbl = {y:x for x,y in tag_to_ix.iteritems()}
+    idx2lbl = dict([(value, key) for key, value in tag_to_ix.items()])
+    for word in sequence:
+        label.append(idx2lbl[list(word).index(max(word))])
+    return label
+
 
 def run():
     """
@@ -302,8 +310,8 @@ def run():
     # training_data = x, y
     tag_to_ix, word_to_ix = get_tag(x, y)
 
-    print(tag_to_ix)
-    print(word_to_ix)
+    #print(tag_to_ix)
+    #print(word_to_ix)
 
     torch.manual_seed(1)
     EMBEDDING_DIM = 300

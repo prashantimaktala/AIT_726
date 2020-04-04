@@ -41,13 +41,19 @@ import numpy as np
 import pandas as pd
 from nltk import word_tokenize
 from nltk.util import ngrams
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 
+torch.manual_seed(1)
 
 # use logging to save the results
 # logging.basicConfig(filename='names_entity_recognition_RNN.log', level=logging.INFO)
 # logging.getLogger().addHandler(logging.StreamHandler())
 
 from gensim import models
+
 
 # embedding_vector = models.KeyedVectors.load_word2vec_format(
 #     './Data/conll2003/GoogleNews-vectors-negative300.bin', binary=True)
@@ -65,6 +71,7 @@ def read_files(path):
     # print(df.head())
     df["words"] = [word.lower() if not word.isupper() else word for word in df["words"]]
     return df
+
 
 def sentence_tokenize(x):
     """
@@ -100,6 +107,7 @@ def get_sentences(path):
     # max_length_sentence = len(max(sentences, key=len))
     return sentences[1:], labels[1:]
 
+
 def pad_tag(df, sentences, max_length_sentence):
     start_index = 0
     for sentence in sentences:
@@ -119,17 +127,17 @@ def get_sentences_train2(file_name):
     labels = []
     sentence = ""
     label = ""
-    for line in open(file_name,"r").readlines():
-        if len(line.strip()) == 0 :
+    for line in open(file_name, "r").readlines():
+        if len(line.strip()) == 0:
             sentences.append(sentence)
             sentence = ""
             labels.append(label.replace("\n", ""))
             label = ""
         else:
-            sentence = sentence + (line.split(" ",1)[0]) + " "
+            sentence = sentence + (line.split(" ", 1)[0]) + " "
             label = label + (line.split(" ")[1]) + " "
             # label = label + (line.split(" ")[3]) +   " "
-    return sentences,labels
+    return sentences, labels
 
 
 def preprocess(df):
@@ -137,7 +145,6 @@ def preprocess(df):
     Tokenize each tweet and generate positive and negative bigrams.
     Labels are appended to the positive and negative bigrams
     """
-
 
     tokens = df.DOCSTART.apply(tokenize)
     sent_bigrams = tokens.apply(lambda tweet: [' '.join(bigram) for bigram in ngrams(tweet, 2)])
@@ -260,6 +267,23 @@ def evaluate(y_true, y_pred, true_label=1):
     logging.info('')
 
 
+def get_tag(x, y):
+    word_to_ix = {}
+    for sent in x:
+        for word in sent.split():
+            if word not in word_to_ix:
+                word_to_ix[word] = len(word_to_ix)
+    #print(word_to_ix)
+    tag_to_ix = {}
+
+    for sent in y:
+        for word in sent.split():
+
+            if word not in tag_to_ix:
+                tag_to_ix[word] = len(tag_to_ix)
+    return tag_to_ix, word_to_ix
+
+
 def run():
     """
     run - Execution of appropriate functions as per the required call
@@ -270,21 +294,10 @@ def run():
     max_length_sentence = len(max(sentences, key=len))
     pad_tag(df_train, sentences, max_length_sentence)
     x, y = get_sentences_train2('./Data/conll2003/train2.txt')
+    tag_to_ix, word_to_ix = get_tag(x, y)
 
-    word_to_ix = {}
-    for sent in x:
-        for word in sent.split():
-            if word not in word_to_ix:
-                word_to_ix[word] = len(word_to_ix)
-    print(word_to_ix)
-    tag_to_ix = {}
-
-    for sent in y:
-        for word in sent.split():
-
-            if word not in tag_to_ix:
-                tag_to_ix[word] = len(tag_to_ix)
     print(tag_to_ix)
+    print(word_to_ix)
 
     # x_train, y_train = preprocess(df_train)
     # x_train, tokenizer = keras_preprocess(x_train)
@@ -300,9 +313,8 @@ def run():
     # evaluate(y_test, y_pred.flatten() > 0.5)
 
 
-
 def main():
-    #test
+    # test
     """
     main - runs all the modules via run function
     """

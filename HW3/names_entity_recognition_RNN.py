@@ -46,7 +46,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-torch.manual_seed(1)
+
 
 # use logging to save the results
 # logging.basicConfig(filename='names_entity_recognition_RNN.log', level=logging.INFO)
@@ -273,7 +273,7 @@ def get_tag(x, y):
         for word in sent.split():
             if word not in word_to_ix:
                 word_to_ix[word] = len(word_to_ix)
-    #print(word_to_ix)
+    # print(word_to_ix)
     tag_to_ix = {}
 
     for sent in y:
@@ -282,6 +282,11 @@ def get_tag(x, y):
             if word not in tag_to_ix:
                 tag_to_ix[word] = len(tag_to_ix)
     return tag_to_ix, word_to_ix
+
+
+def prepare_sequence(seq, to_ix):
+    idxs = [to_ix[w] for w in seq]
+    return torch.tensor(idxs, dtype=torch.long)
 
 
 def run():
@@ -294,10 +299,21 @@ def run():
     max_length_sentence = len(max(sentences, key=len))
     pad_tag(df_train, sentences, max_length_sentence)
     x, y = get_sentences_train2('./Data/conll2003/train2.txt')
+    # training_data = x, y
     tag_to_ix, word_to_ix = get_tag(x, y)
 
     print(tag_to_ix)
     print(word_to_ix)
+
+    torch.manual_seed(1)
+    EMBEDDING_DIM = 300
+    HIDDEN_DIM = 256
+    training_data = []
+    for index, sent in enumerate(x):
+        record = [sent.split(), y[index].split()]
+        training_data.append(record)
+    print(training_data)
+    print(len(training_data))
 
     # x_train, y_train = preprocess(df_train)
     # x_train, tokenizer = keras_preprocess(x_train)

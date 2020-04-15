@@ -22,6 +22,11 @@ import os
 
 
 def get_sentences(path):
+    """
+    get_sentences - helps to navigate through the files in the path, read the files and retrieve the sentences
+    and labels. Sentences consisting of words are extracted from the first column and labels which are the
+    gold standards are present in the last column.
+    """
     sentences, labels = [], []
     sentence, label = [], []
     for line in open(path, "r").read().split('\n'):
@@ -40,6 +45,10 @@ def get_sentences(path):
 
 
 def pad_tag(dataset, max_length_sentence):
+    """
+    pad_tag - helps to append 0's at the end of shorter sentences . Tags for the 0's are set as <pad>.
+    max_length_sentence is passed as an argument which is calculated as 513 for our sentences.
+    """
     sentences, labels = dataset
     for idx in range(len(sentences)):
         # assert max_length_sentence - len(sentences[idx]) > 0
@@ -51,6 +60,9 @@ def pad_tag(dataset, max_length_sentence):
 
 
 def get_vocab(train_sentences):
+    """
+    get_vocab - retrieves the list of unique vocabulary form our train_sentences.
+    """
     vocab = set()
     for sent in train_sentences:
         vocab.update(sent)
@@ -58,11 +70,20 @@ def get_vocab(train_sentences):
 
 
 def load_word2vec(path='./GoogleNews-vectors-negative300.bin.gz'):
+    """
+    load_word2vec - create word2vec (  pre trained word embeddings ) from GoogleNews-vectors-negative300.bin.gz
+    """
     word2vec = gensim.models.KeyedVectors.load_word2vec_format(path, binary=True)
     return word2vec
 
 
 def get_embeddings(vocab):
+    """
+    get_embeddings - create word embeddings and embedding_index based on word2vec. Here we are assigning 0 index word '0'
+    which we assigned during padding, also we are assigning index 1 for all the words missing in the word2vec.
+    we are randomly assigning index for all the words in vocab based on word2vec. we are returning word embeddings
+    and embedding_index from the function.
+    """
     word2vec = load_word2vec()
     embeddings_index = {'0': 0, '<missing>': 1}
     embeddings = [np.random.random(300) for _ in range(len(vocab) + 2)]
@@ -75,6 +96,10 @@ def get_embeddings(vocab):
 
 
 def get_input_seq(sentences, embeddings_index):
+    """
+   get_input_seq - we are creating input sequence for all the tokens in the sentences based on embeddings_index
+   we have created.
+    """
     input_seq = []
     for tokens in sentences:
         input_seq.append(
@@ -84,6 +109,13 @@ def get_input_seq(sentences, embeddings_index):
 
 
 def create_rnn_model(embedding_matrix, input_length, rnn='simple_rnn', bidirectional=False, hidden_size=256, lr=0.0001):
+    """
+    create_rnn_model - Depending on the rnn and bidirectional parameter passed , we are creating all the required 6 models.
+    Here we have 6 models RNN, bi-RNN, LSTM, bi-LSTM, GRU, bi-GRU depending on parameter passed.
+    for all the models wer have one layer of 256 hidden units, and a fully connected output layer using softmax
+    as activation function. Use have used Adam optimizer, and cross-entropy for the loss function with
+    learning rate 0.0001 for all the models.
+     """
     vocabulary_size, embedding_dims = embedding_matrix.shape[0], 300
     model = Sequential()
     model.add(InputLayer(input_shape=(input_length,)))
@@ -103,6 +135,11 @@ def create_rnn_model(embedding_matrix, input_length, rnn='simple_rnn', bidirecti
 
 
 def encode_labels(labels, classes=None):
+    """
+    encode_labels - encode labels to either 0 or 1 for all the 10 classes we have identified depending on if its
+    belong to the class. The 10 classes we have identified are  <pad>, O, B-ORG, B-PER, B-LOC, B-MISC, I-ORG, I-PER,
+    ILOC, I-MISC
+    """
     if classes is None:
         classes = set()
         for sent in labels:
@@ -113,10 +150,16 @@ def encode_labels(labels, classes=None):
 
 
 def decode_labels(predictions, classes):
+    """
+    decode_labels - Decode labels back to the original format
+    """
     return np.array([[classes[lbl.argmax()] for lbl in sent] for sent in predictions])
 
 
 def write_to_file(filename, sentences, labels, preds):
+    """
+    write_to_file - writing the results file consisting of golden standard and predicted labels in the format required
+    """
     with open('results_%s.txt' % filename, 'w', encoding='utf-8') as f:
         f.write('Word Gold_Standard Prediction\n')
         for sent_idx, words in enumerate(sentences):
@@ -127,11 +170,18 @@ def write_to_file(filename, sentences, labels, preds):
 
 
 def train_validate(model, x_train, y_train, x_valid, y_valid, num_epochs=1, batch_size=2000):
+    """
+    train_validate- validate the training data with the required number of epochs and batch_size
+    """
     model.fit(x_train, y_train, epochs=num_epochs, verbose=1, batch_size=batch_size, validation_data=(x_valid, y_valid))
     return model
 
 
 def main(**kwargs):
+    """
+    main - Execution of appropriate functions as per the required call for training and testing data.
+    Execution of appropriate models built and evaluating the best results from the saved models and results
+    """
     rnn, bidirectional = kwargs.get('rnn', 'simple_rnn'), kwargs.get('bidirectional', False)
     model_name = '%s%s' % ('bi-' if bidirectional else '', rnn)
     input_length = 513
@@ -164,6 +214,9 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
+    """
+    main - Pass the required parameters needed to be passed to main
+    """
     parser = argparse.ArgumentParser(description='Train NER Sequence Model.')
     parser.add_argument('--rnn', help='RNN layer type [simple_rnn]/lstm/gru', default='simple_rnn')
     parser.add_argument('--bidirectional', help='whether to use bidirectional true/[false]', default='false')

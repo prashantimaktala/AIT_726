@@ -1,24 +1,19 @@
 import argparse
-import os
-import re
-import logging
-import random
 import gensim
 import numpy as np
-import pandas as pd
-from nltk import word_tokenize
-from nltk.util import ngrams
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import tensorflow as tf
 from tensorflow.keras.layers import InputLayer, Embedding, Dense, GRU, SimpleRNN, LSTM, Bidirectional, TimeDistributed, \
     Activation
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
-import os
+
+def preprocess(sentence):
+    """
+    preprocess - preprocess sentences. Lower case capitalized words but not all capital words. Do not remove stopwords.
+    :param sentence: input sentence
+    :return: lower cased sentence tokens
+    """
+    return [word if word.isupper() else word.lower() for word in sentence]
 
 
 def get_sentences(path):
@@ -35,6 +30,7 @@ def get_sentences(path):
         if len(line.strip()) == 0:
             if len(sentence) == 0:
                 continue
+            sentence = preprocess(sentence)
             sentences.append(sentence)
             labels.append(label)
             sentence, label = [], []
@@ -120,7 +116,7 @@ def create_rnn_model(embedding_matrix, input_length, rnn='simple_rnn', bidirecti
     model = Sequential()
     model.add(InputLayer(input_shape=(input_length,)))
     model.add(Embedding(vocabulary_size, embedding_dims, weights=[embedding_matrix],
-                        input_length=input_length))  # (Batch Size, 50, 300)
+                        input_length=input_length))  # (Batch Size, ?, 300); By default trainable=True
     rnn = {
         'simple_rnn': SimpleRNN(hidden_size, return_sequences=True),
         'lstm': LSTM(hidden_size, return_sequences=True),

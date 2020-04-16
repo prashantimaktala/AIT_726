@@ -106,7 +106,8 @@ def get_input_seq(sentences, embeddings_index):
     return np.array(input_seq)
 
 
-def create_rnn_model(embedding_matrix, input_length, rnn='simple_rnn', bidirectional=False, hidden_size=256, lr=0.0001):
+def create_rnn_model(embedding_matrix, input_length, rnn='simple_rnn', bidirectional=False, trainable_emb=False,
+                     hidden_size=256, lr=0.0001):
     """
     create_rnn_model - Depending on the rnn and bidirectional parameter passed , we are creating all the required 6 models.
     Here we have 6 models RNN, bi-RNN, LSTM, bi-LSTM, GRU, bi-GRU depending on parameter passed.
@@ -118,7 +119,8 @@ def create_rnn_model(embedding_matrix, input_length, rnn='simple_rnn', bidirecti
     model = Sequential()
     model.add(InputLayer(input_shape=(input_length,)))
     model.add(Embedding(vocabulary_size, embedding_dims, weights=[embedding_matrix],
-                        input_length=input_length))  # (Batch Size, ?, 300); By default trainable=True
+                        input_length=input_length,
+                        trainable=trainable_emb))  # (Batch Size, ?, 300); By default trainable=True
     rnn = {
         'simple_rnn': SimpleRNN(hidden_size, return_sequences=True),
         'lstm': LSTM(hidden_size, return_sequences=True),
@@ -158,7 +160,7 @@ def write_to_file(filename, sentences, labels, preds):
     """
     write_to_file - writing the results file consisting of golden standard and predicted labels in the format required
     """
-    with open('results_%s.txt' % filename, 'w', encoding='utf-8') as f:
+    with open('%s.txt' % filename, 'w', encoding='utf-8') as f:
         f.write('Word Gold_Standard Prediction\n')
         for sent_idx, words in enumerate(sentences):
             for word_idx, word in enumerate(words):
@@ -191,6 +193,7 @@ def main(**kwargs):
     Execution of appropriate models built and evaluating the best results from the saved models and results
     """
     rnn, bidirectional = kwargs.get('rnn', 'simple_rnn'), kwargs.get('bidirectional', False)
+    trainable_emb = kwargs.get('trainable', False)
     model_name = '%s%s' % ('bi-' if bidirectional else '', rnn)
     input_length = 513
     train_sentences, train_labels = pad_tag(get_sentences('./conll2003/train.txt'), input_length)
@@ -202,6 +205,7 @@ def main(**kwargs):
         input_length,
         rnn=rnn,
         bidirectional=bidirectional,
+        trainable_emb=trainable_emb,
         hidden_size=256,
         lr=0.0001
     )
@@ -231,5 +235,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train NER Sequence Model.')
     parser.add_argument('--rnn', help='RNN layer type [simple_rnn]/lstm/gru', default='simple_rnn')
     parser.add_argument('--bidirectional', help='whether to use bidirectional true/[false]', default='false')
+    parser.add_argument('--trainable', help='whether to use trainable embeddings true/[false]', default='false')
     args = parser.parse_args()
     main(rnn=args.rnn, bidirectional=args.bidirectional == 'true')

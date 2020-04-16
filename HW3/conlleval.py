@@ -185,24 +185,34 @@ def get_result(correct_chunks, true_chunks, pred_chunks,
     if not verbose:
         return res
 
+    res_print = ''
+
     # print overall performance, and performance per chunk type
 
-    print("processed %i tokens with %i phrases; " % (sum_true_counts, sum_true_chunks), end='')
+    res_print += "processed %i tokens with %i phrases; " % (sum_true_counts, sum_true_chunks)
+    print("processed %i tokens with %i phrases;" % (sum_true_counts, sum_true_chunks), end='')
+    res_print += "found: %i phrases; correct: %i.\n" % (sum_pred_chunks, sum_correct_chunks)
     print("found: %i phrases; correct: %i.\n" % (sum_pred_chunks, sum_correct_chunks), end='')
 
+    res_print += "accuracy: %6.2f%%; (non-O)\n" % (100 * nonO_correct_counts / nonO_true_counts)
     print("accuracy: %6.2f%%; (non-O)" % (100 * nonO_correct_counts / nonO_true_counts))
-    print("accuracy: %6.2f%%; " % (100 * sum_correct_counts / sum_true_counts), end='')
+    res_print += "accuracy: %6.2f%%;" % (100 * sum_correct_counts / sum_true_counts)
+    print("accuracy: %6.2f%%;" % (100 * sum_correct_counts / sum_true_counts), end='')
+    res_print += "precision: %6.2f%%; recall: %6.2f%%; FB1: %6.2f\n" % (prec, rec, f1)
     print("precision: %6.2f%%; recall: %6.2f%%; FB1: %6.2f" % (prec, rec, f1))
 
     # for each chunk type, compute precision, recall and FB1 (default values are 0.0)
     for t in chunk_types:
         prec, rec, f1 = calc_metrics(correct_chunks[t], pred_chunks[t], true_chunks[t])
+        res_print += "%17s: " % t
         print("%17s: " % t, end='')
+        res_print += "precision: %6.2f%%; recall: %6.2f%%; FB1: %6.2f" % (prec, rec, f1)
         print("precision: %6.2f%%; recall: %6.2f%%; FB1: %6.2f" %
               (prec, rec, f1), end='')
+        res_print += "  %d\n" % pred_chunks[t]
         print("  %d" % pred_chunks[t])
 
-    return res
+    return res, res_print
     # you can generate LaTeX output for tables like in
     # http://cnts.uia.ac.be/conll2003/ner/example.tex
     # but I'm not implementing this

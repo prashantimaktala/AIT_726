@@ -182,7 +182,7 @@ def evaluate(y_true, y_pred, classes):
         if true_val != '<pad>':
             true_seqs += [true_val]
             pred_seqs += [pred_val if pred_val != '<pad>' else 'O']
-    _evaluate(true_seqs, pred_seqs)
+    return _evaluate(true_seqs, pred_seqs)
 
 
 def main(**kwargs):
@@ -218,8 +218,10 @@ def main(**kwargs):
     test_sentences, test_labels = pad_tag(get_sentences('./conll2003/test.txt'), input_length)
     x_test, (y_test, _) = get_input_seq(test_sentences, embeddings_index), encode_labels(test_labels, classes)
     y_pred = model.predict(x_test)
-    evaluate(y_test, y_pred, classes)
+    _, result = evaluate(y_test, y_pred, classes)
     write_to_file(model_name, test_sentences, test_labels, decode_labels(y_pred, classes))
+    with open('results_%s.txt' % model_name, 'a', encoding='utf-8') as f:
+        f.write(result)
 
 
 if __name__ == '__main__':

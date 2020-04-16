@@ -6,6 +6,8 @@ from tensorflow.keras.layers import InputLayer, Embedding, Dense, GRU, SimpleRNN
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
+from conlleval import evaluate as _evaluate
+
 
 def preprocess(sentence):
     """
@@ -173,6 +175,16 @@ def train_validate(model, x_train, y_train, x_valid, y_valid, num_epochs=1, batc
     return model
 
 
+def evaluate(y_true, y_pred, classes):
+    true_seqs = []
+    pred_seqs = []
+    for true_val, pred_val in zip(decode_labels(y_true, classes).flatten(), decode_labels(y_pred, classes).flatten()):
+        if true_val != '<pad>':
+            true_seqs += [true_val]
+            pred_seqs += [pred_val if pred_val != '<pad>' else 'O']
+    _evaluate(true_seqs, pred_seqs)
+
+
 def main(**kwargs):
     """
     main - Execution of appropriate functions as per the required call for training and testing data.
@@ -206,6 +218,7 @@ def main(**kwargs):
     test_sentences, test_labels = pad_tag(get_sentences('./conll2003/test.txt'), input_length)
     x_test, (y_test, _) = get_input_seq(test_sentences, embeddings_index), encode_labels(test_labels, classes)
     y_pred = model.predict(x_test)
+    evaluate(y_test, y_pred, classes)
     write_to_file(model_name, test_sentences, test_labels, decode_labels(y_pred, classes))
 
 

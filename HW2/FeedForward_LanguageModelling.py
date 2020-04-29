@@ -20,7 +20,7 @@ ii. run
         c. create a feed forward neural network ( we have FFNN with 2 layers along with embedding layer and
            hidden vector size 20. We have initialized the weights with random number. We have used mean squared error
            as our loss function and sigmoid as our activation function )
-        d. Train the model ( we have verified the accuracy of the model using cross validated training data across
+        d. Train the model ( we have verified the accuracy of the model using 80:20 split validated training data across
            different hyper parameters. We have later returned the model with the best accuracy for testing purpose )
 
     2. Test the model
@@ -172,7 +172,7 @@ def create_model(vocab_size):
 
 def validation_train(x_train, y_train, vocab_size):
     """
-    validation_train - verifies the accuracy of the model using cross validated training data across
+    validation_train - verifies the accuracy of the model using 80:20 split validated training data across
            different hyper parameters. validation_train returns the model with the best accuracy for testing purpose
     """
     best_model = {'accuracy': 0.0, 'model': None, 'hyperparams': {}}

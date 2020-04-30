@@ -83,9 +83,9 @@ def predict_eval(rs, x_text, y_test, sorted_labels):
 
 
 def check_params(rs):
-    _x = [s.parameters['c1'] for s in rs.grid_scores_]
-    _y = [s.parameters['c2'] for s in rs.grid_scores_]
-    _c = [s.mean_validation_score for s in rs.grid_scores_]
+    _x = [s.parameters['c1'] for s in rs.cv_results_]
+    _y = [s.parameters['c2'] for s in rs.cv_results_]
+    _c = [s.mean_validation_score for s in rs.cv_results_]
 
     fig = plt.figure()
     fig.set_size_inches(12, 12)

@@ -56,7 +56,7 @@ def get_sentences(path):
     are extracted from the last column.
     """
     dataset = load_dataset(path)
-    sentences, labels = [sent[0] for sent in dataset], [sent[-1] for sent in dataset]
+    sentences, labels = [[t[0] for t in sent] for sent in dataset], [[t[-1] for t in sent] for sent in dataset]
     return sentences, labels
 
 

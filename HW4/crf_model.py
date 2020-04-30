@@ -1,20 +1,50 @@
 import matplotlib.pyplot as plt
-from itertools import chain
 
-import nltk
-import sklearn
 import scipy.stats
 from sklearn.metrics import make_scorer
-from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RandomizedSearchCV
 
 import sklearn_crfsuite
-from sklearn_crfsuite import scorers
 from sklearn_crfsuite import metrics
 
 from dataset import load_dataset, conll2003_tags
 
 plt.style.use('ggplot')
+
+# The structure of the following code was adopted from example at `sklearn_crfsuite` official website.
+# Original example was for Entity Recognition We improved over those features in `sklearn_crfsuite`
+#     with target verb to indicate the target predicate.
+# https://sklearn-crfsuite.readthedocs.io/en/latest/tutorial.html
+
+""" Features
+The function `word2features` produces the features for a given (sentence, predicate) pair.
+input:  (sent: List[Tuple[token: str, pos_tag: str, is_predicate: boolean]], i)
+    sent - input sentence for a specific predicate
+    i - index of current word to create the features for
+output: features: Dict
+    bias - Word independent feature to capture the label bias in the dataset when training. Always set to 1.
+    word.lower() - Lowercased word.
+    word[-3:] - Last three charactors of word
+    word[-2:] - Last two charactors of word
+    word.isupper() - Whether all characters the word are in capital letters.
+    word.istitle() - Whether the word is in title cased.
+    word.isdigit() - Whether the word is a digit.
+    postag - POS tag.
+    postag[:2] - First two characters of POS tag.
+    is_predicate - Whether this word is the predicate.
+    -1:word.lower() - Previous lowercased word.
+    -1:word.istitle() - Whether the previous word is in title cased.
+    -1:word.isupper() - Whether all characters in the previous word are in capital letters.
+    -1:postag - POS tag of previous word.
+    -1:postag[:2] - First two characters of previous POS tag.
+    +1:word.lower() - Next lowercased word.
+    +1:word.istitle() - Whether the next word is in title cased.
+    +1:word.isupper() - Whether all characters in the next word are in capital letters.
+    +1:postag - POS tag of next word.
+    +1:postag[:2] - First two characters of next POS tag.
+    BOS - Beginning of Sentence Indicator.
+    EOS - End of Sentence Indicator.
+"""
 
 
 def word2features(sent, i):
@@ -33,6 +63,30 @@ def word2features(sent, i):
         'postag[:2]': postag[:2],
         'is_predicate': is_predicate,
     }
+    if i > 0:
+        word1 = sent[i - 1][0]
+        postag1 = sent[i - 1][1]
+        features.update({
+            '-1:word.lower()': word1.lower(),
+            '-1:word.istitle()': word1.istitle(),
+            '-1:word.isupper()': word1.isupper(),
+            '-1:postag': postag1,
+            '-1:postag[:2]': postag1[:2],
+        })
+    else:
+        features['BOS'] = True
+    if i < len(sent) - 1:
+        word1 = sent[i + 1][0]
+        postag1 = sent[i + 1][1]
+        features.update({
+            '+1:word.lower()': word1.lower(),
+            '+1:word.istitle()': word1.istitle(),
+            '+1:word.isupper()': word1.isupper(),
+            '+1:postag': postag1,
+            '+1:postag[:2]': postag1[:2],
+        })
+    else:
+        features['EOS'] = True
     return features
 
 
@@ -43,9 +97,6 @@ def sent2features(sent):
 def sent2labels(sent):
     return [s[-1] for s in sent]
 
-
-# def sent2tokens(sent):
-#     return [token for token, postag, is_predicate, _, label in sent]
 
 def crf_cross_val_select(x_train, y_train, labels):
     # define fixed parameters and parameters to search
@@ -62,10 +113,10 @@ def crf_cross_val_select(x_train, y_train, labels):
     f1_scorer = make_scorer(metrics.flat_f1_score, average='weighted', labels=labels)
     # search
     rs = RandomizedSearchCV(crf, params_space,
-                            cv=3,
-                            verbose=1,
-                            n_jobs=-1,
-                            n_iter=50,
+                            cv=5,
+                            verbose=10,
+                            n_jobs=8,
+                            n_iter=5,
                             scoring=f1_scorer)
     rs.fit(x_train, y_train)
     print('best params:', rs.best_params_)
@@ -105,27 +156,27 @@ def check_params(rs):
 
 def predict_save(model, sentences):
     lines_str = ''
-    for sentence, targets in sentences:
-        lines = [[w[2]] for w in sentence]
-        clens = [[0] for w in sentence]
+    for sentense, targets in sentences:
+        lines = [[w[2]] for w in sentense]
+        cspace = [[0] for w in sentense]
         for target in targets:
-            x_test = [sent2features([x + (t[0],) for x, t in zip(sentence, target)])]
-            # y_test = [sent2labels([t[1] for t in target])]
-            y_pred = model.predict(x_test)
-            y_pred = list(conll2003_tags(y_pred))[0]
-            for idx, (y_pred, clen) in enumerate(y_pred):
-                lines[idx] += [y_pred]
-                clens[idx] += [clen]
+            if len(target) != 0:
+                x_test = [sent2features([x[:2] + (t[0],) for x, t in zip(sentense, target)])]
+                y_pred = model.predict(x_test)
+                y_pred = list(conll2003_tags(y_pred))[0]
+                for idx, (y_pred, clen) in enumerate(y_pred):
+                    lines[idx] += [y_pred]
+                    cspace[idx] += [clen]
         for i, line in enumerate(lines):
             lines_str += line[0]
-            pre_len = 0txt
+            pre_len = 0
             for j, p in enumerate(line[1:]):
                 lines_str += ' ' * (((24 - len(line[0])) if j == 0 else (16 - pre_len)) - cspace[i][j + 1])
                 lines_str += p
-                pre_len = len(p) - clens[i][j + 1]
+                pre_len = len(p) - cspace[i][j + 1]
             lines_str += '\n'
         lines_str += '\n'
-    with open('pred.txt', 'w', encoding='utf-8') as f:
+    with open('model_outputs/pred.txt', 'w', encoding='utf-8') as f:
         f.write(lines_str)
 
 
@@ -143,7 +194,7 @@ def main():
     crf.fit(x_train, y_train)
     sentences = load_dataset('./data.wsj/test-set.txt', output=None)
     predict_save(crf, sentences)
-    # $ perl srl-eval.pl data.wsj/props/test.wsj.props.test predictions.txt
+    # $ perl srl-eval.pl data.wsj/props/test.wsj.props.test pred.txt
 
 
 if __name__ == '__main__':

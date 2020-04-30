@@ -5,10 +5,20 @@ columns = ['ne', 'null', 'props', 'synt.cha', 'synt.col2', 'synt.upc', 'targets'
 
 
 def preprocess(lst):
+    """ Preprocess text input (lines)
+
+    :param lst:
+    :return:
+    """
     return [x.strip() for x in lst]
 
 
 def boi_tags(tags):
+    """ Converts
+
+    :param tags:
+    :return:
+    """
     result = []
     last_tag = 'O'
     for t in tags:
@@ -29,6 +39,11 @@ def boi_tags(tags):
 
 
 def conll2003_tags(y_pred):
+    """
+
+    :param y_pred:
+    :return:
+    """
     for s_pred in y_pred:
         cdatas = []
         for t_pred, t_pred_next in zip(s_pred, s_pred[1:] + [None]):
@@ -66,9 +81,9 @@ def load_dataset(path='./data.wsj/train-set.txt', output='crf'):
             continue
         line = re.split(" +", line.strip())
         if output == 'crf':
-            sentence.append((line[0], line[1], line[4]))
-        else:
             sentence.append((line[0], line[1]))
+        else:
+            sentence.append((line[0], line[1], line[4]))
         if line[4] != '-':
             predicate_idx += 1
         for idx, arg in enumerate(line[5:]):

@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import joblib
 
 import scipy.stats
 from sklearn.metrics import make_scorer
@@ -180,21 +181,34 @@ def predict_save(model, sentences):
         f.write(lines_str)
 
 
+def save_model(model, path='models/best_model.pkl'):
+    joblib.dump(model, path)
+
+
+def load_model(path='models/best_model.pkl'):
+    return joblib.load(path)
+
+
 def main():
+    print(''' Train-Predict-Evaluate CRF Model
+    Authors: Ashwini - Prashanti - Yasas
+    ''')
     train_sents = load_dataset()
     x_train = [sent2features(s) for s in train_sents]
     y_train = [sent2labels(s) for s in train_sents]
     crf = sklearn_crfsuite.CRF(
         algorithm='lbfgs',
-        c1=0.1,
-        c2=0.1,
+        c1=0.86, c2=0.10,
         max_iterations=100,
         all_possible_transitions=True
     )
-    crf.fit(x_train, y_train)
+    model = crf.fit(x_train, y_train)
     sentences = load_dataset('./data.wsj/test-set.txt', output=None)
     predict_save(crf, sentences)
-    # $ perl srl-eval.pl data.wsj/props/test.wsj.props.test pred.txt
+    save_model(model)
+    # $ perl srl-eval.pl data.wsj/props/test.wsj.props.test model_outputs/pred_best.txt
+    print('Please use `perl srl-eval.pl data.wsj/props/test.wsj.props.test model_outputs/pred_best.txt`'
+          ' to evaluate the output.')
 
 
 if __name__ == '__main__':

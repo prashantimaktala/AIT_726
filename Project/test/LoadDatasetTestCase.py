@@ -9,8 +9,7 @@ class LoadDatasetTestCase(unittest.TestCase):
         df = None
         for keys in DATA_PATHS.keys():
             df = load_dataset(DATA_PATHS[keys])
-            if df is None:
-                break
+            print(keys, df.shape)
         self.assertIsNotNone(df)
 
 

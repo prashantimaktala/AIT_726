@@ -280,17 +280,17 @@ def main():
         crf = sklearn_crfsuite.CRF(
             algorithm='lbfgs',
             c1=0.86, c2=0.10,
-            max_iterations=100,
+            max_iterations=5,
             all_possible_transitions=True
         )
         model = crf.fit(x_train, y_train)
         sentences = load_dataset('./data.wsj/test-set.txt', output=None)
         # Make predictions using the trained model and save the outputs to `model_outputs/pred_best.txt`
-        predict_save(crf, sentences)
+        predict_save(crf, sentences, path='model_outputs/not_pred_best.txt')
         # show training loss values for each iteration
         show_training_loss(model)
         # Save the model using joblib in `models/best_model.pkl`
-        save_model(model)
+        save_model(model, path='models/not_best_model.pk')
         # $ perl srl-eval.pl data.wsj/props/test.wsj.props.test model_outputs/pred_best.txt
         print('Please use `perl srl-eval.pl data.wsj/props/test.wsj.props.test model_outputs/pred_best.txt`'
               ' to evaluate the output.')

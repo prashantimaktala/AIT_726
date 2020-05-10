@@ -3,6 +3,12 @@ import pandas as pd
 
 
 def evaluate(y_true, y_pred):
+    """ Evaluates the provided predictions against the ground truth.
+
+    :param y_true: ground truth
+    :param y_pred: predictions
+    :return: DataFrame containing evaluation scores
+    """
     accuracy = accuracy_score(y_true, y_pred)
     precision_macro = precision_score(y_true, y_pred, average='macro')
     precision_micro = precision_score(y_true, y_pred, average='micro')

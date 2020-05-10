@@ -2,8 +2,10 @@ from os.path import join as join_path
 from os.path import dirname as dirname
 from os.path import abspath as abspath
 
+# Project path
 PROJECT_PATH = join_path(dirname(abspath(__file__)), '..')
 
+# Paths to data files
 DATA_PATHS = {
     'asba.foursquare.raw.test.a': join_path(PROJECT_PATH, 'data', 'raw', 'foursquare_asba', 'foursquare_testA.xml'),
     'asba.foursquare.raw.test.b': join_path(PROJECT_PATH, 'data', 'raw', 'foursquare_asba', 'foursquare_testB.xml'),
